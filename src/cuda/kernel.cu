@@ -46,7 +46,7 @@ do                                                                  \
     {                                                               \
         fprintf(stdout, "ERROR in %s:%d. Message: %s\n",            \
                 __FILE__, __LINE__, cudaGetErrorString(_res));      \
-		exit(0);												    \
+		exit(0);				            \
     }                                                               \
 } while(0)
 
