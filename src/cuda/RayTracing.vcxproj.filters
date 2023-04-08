@@ -23,9 +23,6 @@
     <Text Include="in.txt">
       <Filter>in/out</Filter>
     </Text>
-    <Text Include="out.txt">
-      <Filter>in/out</Filter>
-    </Text>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="geometry.h">
