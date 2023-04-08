@@ -211,44 +211,4 @@ vec3 threshold(vec3 v, float l, float u)
     return { fmaxf(fminf(v.x, u), l), fmaxf(fminf(v.y, u), l), fmaxf(fminf(v.z, u), l) };
 }
 
-void vec3_copy(const vec3 *src, vec3 *dst, int n)
-{
-    int i;
-    for (i = 0; i < n; i++)
-    {
-        dst[i] = src[i];
-    }
-}
-
-void vec3_print(const vec3 &v)
-{
-    printf("[%f %f %f]\n", v.x, v.y, v.z);
-}
-
-void tex_triangle_print(const tex_triangle &t)
-{
-    printf("[(%f, %f), (%f, %lf), (%f, %f)]\n",
-           t.a.x, t.a.y, t.b.x, t.b.y,t.c.x, t.c.y);
-}
-
-void triangle_print(const triangle &t)
-{
-    printf("[(%f, %f, %f), (%f, %f, %f), (%f, %f, %f)]\n", 
-            t.a.x, t.a.y, t.a.z, t.b.x, t.b.y, t.b.z, t.c.x, t.c.y, t.c.z);
-}
-
-void mat_print(const float *A, int m, int n)
-{
-    int i, j;
-    for (i = 0; i < m; i++)
-    {
-        printf("[ ");
-        for (j = 0; j < n; j++)
-        {
-            printf("%f ", A[i * n + j]);
-        }
-        printf("]\n");
-    }
-}
-
 #endif 
