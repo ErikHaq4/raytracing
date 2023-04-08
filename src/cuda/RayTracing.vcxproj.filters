@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{5e007833-3600-4287-b756-e9fbe14b79ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="in/out">
+      <UniqueIdentifier>{fcad893b-46bb-4a97-aef1-8d2f0a511691}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include">
+      <UniqueIdentifier>{66c7d6df-45d5-4778-aafd-3d0f7c41daac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="build">
+      <UniqueIdentifier>{f4a256d5-28c6-43f4-805a-d3cb33fd0c06}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="kernel.cu">
+      <Filter>src</Filter>
+    </CudaCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="in.txt">
+      <Filter>in/out</Filter>
+    </Text>
+    <Text Include="out.txt">
+      <Filter>in/out</Filter>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="geometry.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="volume.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="linalg.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="light.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="render.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="render.cuh">
+      <Filter>include</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Makefile">
+      <Filter>build</Filter>
+    </None>
+  </ItemGroup>
+</Project>
