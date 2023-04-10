@@ -208,10 +208,10 @@ void SSAA(uchar4 *dst, int w, int h, int kw, int kh,
                     for (i = 0; i < kw; i++)
                     {
                         index = y * w * kw * kh + x * kw + j * w * kw + i;
-                        mid.x += src[index].x;
-                        mid.y += src[index].y;
-                        mid.z += src[index].z;
-                        mid.w += src[index].w;
+                        mid.x += (float)src[index].x;
+                        mid.y += (float)src[index].y;
+                        mid.z += (float)src[index].z;
+                        mid.w += (float)src[index].w;
                     }
                 }
                 dst[y * w + x].x = (uchar)roundf(mid.x / (float)(kw * kh));

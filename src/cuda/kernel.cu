@@ -48,7 +48,7 @@ do                                                                  \
     {                                                               \
         fprintf(stdout, "ERROR in %s:%d. Message: %s\n",            \
                 __FILE__, __LINE__, cudaGetErrorString(_res));      \
-		exit(0);				            \
+		exit(0);												    \
     }                                                               \
 } while(0)
 
@@ -672,12 +672,37 @@ int main(int argc, char **argv)
             }
             std::fill(n_levels + 1, n_levels + 1 + MAX_R, 0);
 
-            cudaMemcpy(pixels_SSAA_dev, pixels_SSAA, ws * hs * sizeof(uchar4), cudaMemcpyHostToDevice);
-            SSAA_kernel<<<SSAA_grid.first, SSAA_grid.second>>>
-                         (pixels_dev, w, h, k_SSAA, k_SSAA, pixels_SSAA_dev);
-            DCSC(cudaDeviceSynchronize());
-            DCSC(cudaGetLastError());
-            cudaMemcpy(pixels, pixels_dev, w * h * sizeof(uchar4), cudaMemcpyDeviceToHost);
+            if (k_SSAA > 1)
+            {
+                cudaMemcpy(pixels_SSAA_dev, pixels_SSAA, ws * hs * sizeof(uchar4), cudaMemcpyHostToDevice);
+                SSAA_kernel<<<SSAA_grid.first, SSAA_grid.second>>>
+                            (pixels_dev, w, h, k_SSAA, k_SSAA, pixels_SSAA_dev);
+                DCSC(cudaDeviceSynchronize());
+                DCSC(cudaGetLastError());
+                cudaMemcpy(pixels, pixels_dev, w * h * sizeof(uchar4), cudaMemcpyDeviceToHost);
+            }
+            else // k_SSAA == 1
+            {
+                int size = h,
+                    block_size = (size - 1) / omp_threads + 1;
+
+                #pragma omp parallel num_threads(omp_threads) private(y, x)
+                {
+                    int id = omp_get_thread_num(),
+                        nthrs = omp_get_num_threads();
+
+                    int begin = id * block_size,
+                        end = MIN((id + 1) * block_size, size);
+
+                    for (y = begin; y < end; y++)
+                    {
+                        for (x = 0; x < w; x++)
+                        {
+                            pixels[y * w + x] = pixels_SSAA[y * w + x];
+                        }
+                    }
+                }
+            }
             
             sprintf(buff, path2images, i);
             fp = fopen(buff, "wb");
@@ -693,6 +718,7 @@ int main(int argc, char **argv)
                    i + 1,
                    (float)time_span.count(),
                    sum_rays);
+            fflush(stdout);
         }
         for (i = 0; i < MAX_R + 1; i++)
         {
@@ -742,6 +768,7 @@ int main(int argc, char **argv)
                    i + 1,
                    (float)time_span.count(),
                    w * h);
+            fflush(stdout);
         }
     }
 
