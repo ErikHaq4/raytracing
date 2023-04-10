@@ -764,10 +764,10 @@ int main(int argc, char **argv)
             time_end = high_resolution_clock::now();
             time_span = std::chrono::duration_cast<milliseconds>(time_end - time_start);
 
-            printf("%12d|%12.2f|%12d\n",
+            printf("%12d|%12.2f|%12s\n",
                    i + 1,
                    (float)time_span.count(),
-                   w * h);
+                   "----------");
             fflush(stdout);
         }
     }
