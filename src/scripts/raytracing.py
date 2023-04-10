@@ -349,7 +349,6 @@ def main():
 
         # Чтение параметров по умолчанию
 
-        cpu = False
         gpu = True
 
         with open(path2default, "r", encoding="ascii") as fp:
@@ -412,7 +411,7 @@ def main():
                     i += 1
                 elif key == "-cpu":
 
-                    cpu = True
+                    gpu = False
 
                     i += 1
                 elif key == "-nframes":
