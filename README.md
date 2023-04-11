@@ -17,3 +17,4 @@
 | Вологдин Николай Игоревич        | Бизнес-аналитик      |                            |
 |                                  |                      |                            |
 
+![video](https://github.com/ErikHaq4/raytracing/blob/main/png/video.gif)
