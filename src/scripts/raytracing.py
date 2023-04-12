@@ -109,12 +109,12 @@ key = -conv:
                                    ==============================================================
         arg2 = path2file1
             arg3 = path2file2      Конвертация одного файла path2file1 из внутреннего формата *.dat
-                                   в формат *.png и сохранение его в path2file2
+                                   в формат *.(png|jpg|tiff) и сохранение его в path2file2
                                    ==============================================================
     arg1 = -png2int
         arg2 = path2file1
-            arg3 = path2file2      Конвертация одного файла path2file1 из формата *.png во внутренний
-                                   формат .dat и сохранение его в path2file2
+            arg3 = path2file2      Конвертация одного файла path2file1 из формата *.(png|jpg|tiff) во внутренний
+                                   формат *.dat и сохранение его в path2file2
                                    ==============================================================
 key = -video
     [arg1] = path2video
@@ -122,7 +122,8 @@ key = -video
                                    именем и местоположением path2video и числом кадров в секунду fps.
                                    Если опциональный параметр path2video не указан, то path2video = res.mp4
                                    и опциональный параметр fps = 10. Для работы данного режима
-                                   необходима утилита ffmpeg, добавленная в переменную среды Path
+                                   необходима утилита ffmpeg, добавленная в переменную среды Path.
+                                   Поддерживаются выходные форматы *.(mp4|gif|avi)
                                    ==============================================================
 
 key = -render                      Рендер сцены. Далее идёт описание параметров, все их них опциональны:
@@ -134,13 +135,16 @@ key = -render                      Рендер сцены. Далее идёт 
 
     [arg(i)] = -nframes            Число выходных кадров. nframes > 1
         arg(i+1) = nframes
-    [arg(i)] = -frames_dir         Папка для хранения выходных кадров. Строка
-        arg(i+1) = frames_dir
+
+    [arg(i)] = -frames_dir         Папка для хранения выходных кадров. Строка.
+        arg(i+1) = frames_dir      Абсолютный или относительный путь, начиная с директории cuda.
+                                   Путь не должен содержать кириллицы, пустых символов
+
     [arg(i)] = -w                  Ширина выходного кадра. w > 0
         arg(i+1) = w
     [arg(i)] = -h                  Высота выходного кадра. h > 0
         arg(i+1) = h
-    [arg(i)] = -fov                Угол обзора в градуса. 1 <= fov <= 180
+    [arg(i)] = -fov                Угол обзора в градуса. Целое число. 1 <= fov <= 180
         arg(i+1) = fov
     [arg(i)] = -camera_c           Группы параметров camera_c и camera_v определяют
         arg(i+1) = r0c             закон движения камеры.
@@ -210,7 +214,8 @@ key = -render                      Рендер сцены. Далее идёт 
         arg(i+10) = d.x            не реализован
         arg(i+11) = d.y
         arg(i+12) = d.z
-        arg(i+13) = path2tex       Путь к текстуре во внутреннем формате *.dat. 
+        arg(i+13) = path2tex       Путь к текстуре во внутреннем формате *.dat. Абсолютный или относительный путь, начиная с директории cuda.
+                                   Путь не должен содержать кириллицы, пустых символов
         arg(i+14) = r              0 <= r <= 1
         arg(i+15) = g              0 <= g <= 1
         arg(i+16) = b              0 <= b <= 1. Параметры r, g, b пока не используются
@@ -235,7 +240,7 @@ key = -render                      Рендер сцены. Далее идёт 
                                    отражения и прозрачности не будет
     [arg(i)] = -ssaa               Коэффициент увеличения масштаба рендера со сглаживанием по алгоритму SSAA. Целое число. ssaa >= 1
         arg(i+1) = ssaa            Фактические размеры кадра есть (ssaa * w) x (ssaa * h), который затем ужимается до w x h.
-                                   Данный параметр сильно увеличивает время рендера.
+                                   При ssaa > 1 улучшает выходные изображения, но сильно увеличивает время рендера
 """
 
 
@@ -291,11 +296,11 @@ def main():
                     os.chdir(script_dir) # Возврат
                 else:
 
+                    print("Hi")
                     int2png(from_path, to_path)
                     print("Converted %s -> %s" % (from_path, to_path))
 
         elif key2 == "-png2int":
-
 
             from_path = argv[2]
             to_path = argv[3]
@@ -491,12 +496,12 @@ def main():
 
                     nlights = int(get_argv(i + 1))
 
-                    lights_params = [[0.] * 6] * nlights
+                    lights_params = np.empty((nlights, 6), dtype=np.float64)
 
                     for j in range(nlights):
                         for k in range(6):
-                            lights_params[j][k] = float(argv[i + 2 + j * 6 + k])
-
+                            lights_params[j, k] = float(argv[i + 2 + j * 6 + k])
+                    
                     i += 1 + 1 + nlights * 6
                 elif key == "-rmax":
 
@@ -532,7 +537,7 @@ def main():
         print("Коэффицент SSAA: %d" % SSAA)
         print("Разрешение рендера: %dx%d" % (w * SSAA, h * SSAA))
 
-        plain_lights_params = [None] * (len(lights_params) * 6)
+        plain_lights_params = [0.] * (len(lights_params) * 6)
         for i in range(len(lights_params)):
             for j in range(6):
                 plain_lights_params[i * 6 + j] = lights_params[i][j]
