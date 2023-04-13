@@ -392,11 +392,11 @@ def main():
             floor_params = [float(p) for p in line[0:12]] + [line[12]] + [float(p) for p in line[13:17]]
 
             nlights = int(sreadline())
-            lights_params = [[0.0] * 6] * nlights
+            lights_params = np.empty((nlights, 6), dtype=np.float64)
 
             for i in range(nlights):
                 line = sreadline().split()
-                lights_params[i] = [float(p) for p in line]
+                lights_params[i,:] = list(map(float, line))
 
             line = sreadline().split()
             RMAX, SSAA = int(line[0]), int(line[1])
@@ -537,11 +537,6 @@ def main():
         print("Коэффицент SSAA: %d" % SSAA)
         print("Разрешение рендера: %dx%d" % (w * SSAA, h * SSAA))
 
-        plain_lights_params = [0.] * (len(lights_params) * 6)
-        for i in range(len(lights_params)):
-            for j in range(6):
-                plain_lights_params[i * 6 + j] = lights_params[i][j]
-
         string_params = \
 ("\
 %d \
@@ -571,7 +566,7 @@ def main():
          *icosahedron_params,
          *floor_params,
          nlights,
-         *plain_lights_params,
+         *lights_params.ravel(),
          RMAX, SSAA)
 
         script_dir = os.getcwd()
