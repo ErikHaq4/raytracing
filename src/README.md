@@ -6,7 +6,7 @@
 
 2. Установить Microsoft Visual Studio (VS) версии не менее 2019 года;
 
-3. Установить CUDA sdk для VS;
+3. Установить CUDA 11.0 sdk для VS;
 
 4. Открыть файл src/cuda/RayTracing.sln из репозитория в VS;
 
