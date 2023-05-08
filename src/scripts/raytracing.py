@@ -314,7 +314,6 @@ def main():
                     os.chdir(script_dir) # Возврат
                 else:
 
-                    print("Hi")
                     int2png(from_path, to_path)
                     print("Converted %s -> %s" % (from_path, to_path))
 
@@ -383,9 +382,6 @@ def main():
         path2exe = os.path.join(FOLDER, "cuda", "x64", "Release", "RayTracing.exe")
 
         path2default = os.path.join(FOLDER, "cuda", "in.txt")
-
-        for file in filter(lambda x : x.endswith(".dat"), os.listdir(os.path.join(FOLDER, "cuda", "frames_dat"))):
-            os.remove(os.path.join(FOLDER, "cuda", "frames_dat", file))
 
         # Чтение параметров по умолчанию
 
@@ -603,6 +599,12 @@ def main():
          nlights,
          *lights_params.ravel(),
          RMAX, SSAA)
+        
+        frames_dir_start = os.path.split(frames_dir)[0]
+
+        # Чистка старых файлов
+        for file in filter(lambda x : x.endswith(".dat"), os.listdir(os.path.join(FOLDER, "cuda", frames_dir_start))):
+            os.remove(os.path.join(FOLDER, "cuda", frames_dir_start, file))
 
         script_dir = os.getcwd()
         os.chdir(os.path.join(FOLDER, "cuda"))
