@@ -104,8 +104,10 @@ Usage: python raytracing.py key [arg1] [arg2] ...
 key = -conv:
     arg1 = -int2png
         arg2 = -all                Конвертация всех кадров из внутреннего формата *.dat в формат *.png.
-                                   Файлы *.dat должны находиться в папке cuda/frames_dat, выходные
-                                   файлы *.png будут находиться в папке cuda/frames_png
+                                   Файлы *.dat должны находиться в папке cuda/frames_dat (или 
+                                   в пользовательской папке, указанной после опционального ключа -ifolder),
+                                   выходные файлы *.png будут находиться в папке cuda/frames_png (или 
+                                   в пользовательской папке, указанной после опционального ключа -ofolder)
                                    ==============================================================
         arg2 = path2file1
             arg3 = path2file2      Конвертация одного файла path2file1 из внутреннего формата *.dat
@@ -118,7 +120,8 @@ key = -conv:
                                    ==============================================================
 key = -video
     [arg1] = path2video
-        [arg2] = fps               Создание видео с помощью кадров из папки cuda/frames_png с выходным
+        [arg2] = fps               Создание видео с помощью кадров из папки cuda/frames_png (или пользовательской папке,
+                                   указанной после опционального ключа -ifolder) с выходным
                                    именем и местоположением path2video и числом кадров в секунду fps.
                                    Если опциональный параметр path2video не указан, то path2video = res.mp4
                                    и опциональный параметр fps = 10. Для работы данного режима
@@ -272,11 +275,26 @@ def main():
 
             if key3 == "-all":
 
+                ifolder = os.path.join(FOLDER, "cuda", "frames_dat")
+                ofolder = os.path.join(FOLDER, "cuda", "frames_png")
+
+                i = 4
+
+                while i < len(argv):
+
+                    if argv[i] == "-ifolder":
+                        ifolder = get_argv(i + 1)
+                        i += 2
+                    elif argv[i] == "-ofolder":
+                        ofolder = get_argv(i + 1)
+                        i += 2
+                    else:
+                        print(DESC)
+                        exit(0)
+
                 threads = mp.cpu_count()
 
-                int2png_all(os.path.join(FOLDER, "cuda", "frames_dat"),
-                            os.path.join(FOLDER, "cuda", "frames_png"),
-                            threads)
+                int2png_all(ifolder, ofolder, threads)
             else:
 
                 from_path = key3
@@ -331,13 +349,30 @@ def main():
 
     elif key1 == "-video":
 
-        name = get_argv(2, "res.mp4")
-        fps = int(get_argv(3, "10"))
+        name = "res.mp4"
+        fps = 10
+        ifolder = os.path.join(FOLDER, "cuda", "frames_png")
+
+        readname = False
+        i = 2
+
+        while i < len(argv):
+
+            if argv[i] == "-ifolder":
+                ifolder = get_argv(i + 1)
+                i += 2
+            elif not readname:
+                name = argv[i]
+                i += 1
+                readname = True
+            else:
+                fps = int(argv[i])
+                i += 1
 
         if os.path.exists(name):
             os.remove(name)
 
-        process = sp.Popen(["ffmpeg", "-framerate", str(fps), "-i", os.path.join(FOLDER, "cuda", "frames_png", "%d.png"), name],
+        process = sp.Popen(["ffmpeg", "-framerate", str(fps), "-i", os.path.join(ifolder, "%d.png"), name],
                            stdin=sp.PIPE,
                            stdout=sp.PIPE)
         answer = process.communicate()[0].decode("ascii")
