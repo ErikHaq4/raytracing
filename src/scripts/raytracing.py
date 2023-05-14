@@ -38,7 +38,7 @@ def png2int(from_path, to_path):
         file.write(struct.pack("ii", w, h))
         file.write(buff.raw)
 
-def int2png(from_path, to_path):
+def int2png(from_path, to_path, check_ascii=True):
 
     w = h = 0
     buff = None
@@ -50,7 +50,30 @@ def int2png(from_path, to_path):
     im = struct.unpack_from(">" + str(4 * w * h) + "B", buff)
     im = np.array(im, dtype=np.uint8).reshape((h, w, 4))
 
-    cv2.imwrite(to_path, cv2.cvtColor(im, cv2.COLOR_BGR2RGBA))
+    if check_ascii:
+
+        try:
+            _ = to_path.encode("ascii")
+            cv2.imwrite(to_path, cv2.cvtColor(im, cv2.COLOR_BGR2RGBA))
+
+        except:
+
+            ext = to_path.split(".")[-1]
+            tmp_name = "_"
+
+            while os.path.exists(tmp_name + "." + ext):
+                tmp_name += "_"
+
+            tmp_name += "." + ext
+            cv2.imwrite(tmp_name, cv2.cvtColor(im, cv2.COLOR_BGR2RGBA))
+
+            if os.path.exists(to_path):
+                os.remove(to_path)
+
+            os.rename(tmp_name, to_path)
+
+    else:
+        cv2.imwrite(to_path, cv2.cvtColor(im, cv2.COLOR_BGR2RGBA))
 
 def int2png_all(datdir, pngdir, threads=-1):
     """
@@ -69,7 +92,7 @@ def int2png_all(datdir, pngdir, threads=-1):
 
         name = file[0:len(file)-4]
 
-        jobs.append((os.path.join(datdir, file), name+".png"))
+        jobs.append((os.path.join(datdir, file), name+".png", False))
 
     if len(jobs) == 0:
 
@@ -319,12 +342,10 @@ def main():
                 else:
 
                     int2png(from_path, to_path)
-                    print("Converted %s -> %s" % (from_path, to_path))
+                    
+                print("Converted %s -> %s" % (from_path, to_path))
 
         elif key2 == "-png2int":
-
-            from_path = argv[2]
-            to_path = argv[3]
 
             from_path = get_argv(3)
             to_path = get_argv(4)
@@ -344,7 +365,8 @@ def main():
             else:
 
                 png2int(from_path, to_path)
-                print("Converted %s -> %s" % (from_path, to_path))
+                
+            print("Converted %s -> %s" % (from_path, to_path))
 
         else:
 
