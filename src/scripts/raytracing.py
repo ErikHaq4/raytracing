@@ -58,7 +58,16 @@ def int2png(from_path, to_path, check_ascii=True):
 
         except:
 
-            ext = to_path.split(".")[-1]
+            i = len(to_path) - 1
+            
+            while i >= 0 and to_path[i] != '.':
+                i -= 1
+
+            if i < 0:
+                print("ERROR: can't get extension for %s" % to_path)
+                exit(0)
+
+            ext = to_path[i + 1 : len(to_path)]
             tmp_name = "_"
 
             while os.path.exists(tmp_name + "." + ext):
