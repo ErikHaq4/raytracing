@@ -22,7 +22,11 @@ import subprocess as sp
 #%% Функции
 
 def png2int(from_path, to_path):
-    im = cv2.cvtColor(cv2.imread(from_path), cv2.COLOR_BGR2RGBA)
+
+    with open(from_path, "rb") as fp:
+        data = fp.read()
+        
+    im = cv2.cvtColor(cv2.imdecode(np.frombuffer(data, dtype=np.uint8), cv2.IMREAD_COLOR), cv2.COLOR_BGR2RGBA)
 
     w = im.shape[1]
     h = im.shape[0]
