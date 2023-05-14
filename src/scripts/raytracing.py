@@ -58,12 +58,12 @@ def int2png(from_path, to_path, check_ascii=True):
 
         except:
 
-            i = len(to_path) - 1
+            i = len(to_path) - 2
             
             while i >= 0 and to_path[i] != '.':
                 i -= 1
 
-            if i < 0:
+            if i < 0 or to_path.endswith("."):
                 print("ERROR: can't get extension for %s" % to_path)
                 exit(0)
 
