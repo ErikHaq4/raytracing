@@ -168,7 +168,7 @@ struct partion_pred
 struct sort_greater
 {
     __host__ __device__
-        bool operator()(node a, node b)
+    bool operator()(node a, node b)
     {
         return a.num < b.num;
     }
@@ -642,14 +642,24 @@ int main(int argc, char **argv)
             }
 
             /* Копирование и сортировка */
+
             for (k = 0; k < R - 1; k++)
             {
                 ptr = thrust::device_pointer_cast(tree_dev[k]);
                 sort(thrust::device, ptr, ptr + n_levels[k], sort_greater());
                 CSC(cudaMemcpy(tree[k], tree_dev[k], n_levels[k] * sizeof(node), cudaMemcpyDeviceToHost));
             }
-            /* На последнем уровне уже отсортировано */
-            CSC(cudaMemcpy(tree[k], tree_dev[k], n_levels[k] * sizeof(node), cudaMemcpyDeviceToHost));
+
+            if (MAX_R > 0 && n_rays == 0) /* Вырожденный случай: нужно сортировать последний уровень */
+            {
+                ptr = thrust::device_pointer_cast(tree_dev[k]);
+                sort(thrust::device, ptr, ptr + n_levels[k], sort_greater());
+                CSC(cudaMemcpy(tree[k], tree_dev[k], n_levels[k] * sizeof(node), cudaMemcpyDeviceToHost));
+            }
+            else /* Обычный случай: на последнем уровне уже отсортировано */
+            {
+                CSC(cudaMemcpy(tree[k], tree_dev[k], n_levels[k] * sizeof(node), cudaMemcpyDeviceToHost));
+            }
             
             int size = hs,
                 block_size = (size - 1) / omp_threads + 1;
