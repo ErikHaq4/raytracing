@@ -77,7 +77,11 @@ namespace WinFormsApp4
             string dir = Path.Combine(Directory.GetCurrentDirectory());
             string pict = pathUP(dir, 6);
             string arg1 = pict + "\\scripts\\raytracing.py";
-           
+            prc1 = z.label2.Text;
+            prc1 = prc1.Replace(@"*", "\\");
+            
+
+            
 
 
             //подсказки по наведению на элементы управления  
@@ -231,11 +235,9 @@ namespace WinFormsApp4
             string pict = pathUP(dir, 6);
             string arg1 = pict + "\\scripts\\raytracing.py";
 
-            prc1 = z.label2.Text;
-            prc1 = prc1.Replace(@"*", "\\");
 
             button1.Visible = false;
-            button3.Enabled = true;
+          
             pictureBox1.Image?.Dispose();
 
             kr1 = textBox14.Text;
@@ -303,7 +305,24 @@ namespace WinFormsApp4
             RunProcessSync(prc1, arg1 + " -conv -int2png -all");
             trackBar1.Visible = true;
             trackBar1.Enabled = true;
+            if (trackBar1.Value == trackBar1.Maximum)
+            {
+                trackBar1.Value -= 1;
 
+                if (pictureBox1.Image != null) { pictureBox1.Image.Dispose(); }
+                pictureBox1.Image = Image.FromFile(pict + "\\cuda\\frames_png\\" + trackBar1.Value + ".png");
+
+                trackBar1.Value += 1;
+            } else 
+            { 
+                trackBar1.Value += 1;
+
+                if (pictureBox1.Image != null) { pictureBox1.Image.Dispose(); }
+                pictureBox1.Image = Image.FromFile(pict + "\\cuda\\frames_png\\" + trackBar1.Value + ".png");
+
+                trackBar1.Value -= 1; 
+            }
+           
         }
         private void trackBar1_Scroll(object sender, EventArgs e)
         {
@@ -325,7 +344,7 @@ namespace WinFormsApp4
             prc1 = z.label2.Text;
             prc1 = prc1.Replace(@"*", "\\");
 
-            button3.Enabled = false;
+           
             pictureBox1.Image?.Dispose();
 
 
@@ -517,10 +536,22 @@ namespace WinFormsApp4
         {
             string dir = Path.Combine(Directory.GetCurrentDirectory());
             string pict = pathUP(dir, 6);
-            string vlcpath = pathUP(dir,11);
-            
-            Process.Start(vlcpath + "\\Program Files\\VideoLAN\\VLC\\vlc.exe", pict + "\\gui\\RT_Form\\RT_Form\\TMP\\" + textBox25.Text + ".mp4");
 
+            string vlcpath = " ";
+            int i = 65;
+
+
+            while (!File.Exists(vlcpath))
+            {
+                vlcpath = Convert.ToChar(i) + ":\\Program Files\\VideoLAN\\VLC\\vlc.exe";
+               
+                i++;
+
+            }
+
+
+            Process.Start(vlcpath +  " ", pict + "\\gui\\RT_Form\\RT_Form\\TMP\\" + textBox25.Text + ".mp4");
+             
 
         }
 
@@ -533,6 +564,7 @@ namespace WinFormsApp4
             if (Char.IsNumber(e.KeyChar) | (Char.IsPunctuation(e.KeyChar) | e.KeyChar == '\b' )) return;
             else
                 e.Handled = true;
+
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -542,6 +574,16 @@ namespace WinFormsApp4
             
            
         }
+        
+        private void textBox1_KeyDown(object sender, KeyEventArgs e)
+        {
+            if ((e.KeyCode == Keys.C && e.Control) || (e.KeyCode == Keys.V && e.Control))
+                e.SuppressKeyPress = true;
+            else
+                e.SuppressKeyPress = false;
+        }
+
+        
     }
 
 }

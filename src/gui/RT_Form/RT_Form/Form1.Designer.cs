@@ -42,9 +42,6 @@ namespace WinFormsApp4
             this.label27 = new System.Windows.Forms.Label();
             this.textBox25 = new System.Windows.Forms.TextBox();
             this.label25 = new System.Windows.Forms.Label();
-            this.label22 = new System.Windows.Forms.Label();
-            this.label23 = new System.Windows.Forms.Label();
-            this.label24 = new System.Windows.Forms.Label();
             this.label21 = new System.Windows.Forms.Label();
             this.textBox18 = new System.Windows.Forms.TextBox();
             this.textBox17 = new System.Windows.Forms.TextBox();
@@ -53,21 +50,24 @@ namespace WinFormsApp4
             this.numericUpDown3 = new System.Windows.Forms.NumericUpDown();
             this.numericUpDown2 = new System.Windows.Forms.NumericUpDown();
             this.label19 = new System.Windows.Forms.Label();
-            this.textBox23 = new System.Windows.Forms.TextBox();
             this.label17 = new System.Windows.Forms.Label();
+            this.label16 = new System.Windows.Forms.Label();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.label22 = new System.Windows.Forms.Label();
+            this.textBox21 = new System.Windows.Forms.TextBox();
+            this.textBox20 = new System.Windows.Forms.TextBox();
+            this.textBox15 = new System.Windows.Forms.TextBox();
+            this.label23 = new System.Windows.Forms.Label();
+            this.textBox16 = new System.Windows.Forms.TextBox();
+            this.label24 = new System.Windows.Forms.Label();
+            this.textBox19 = new System.Windows.Forms.TextBox();
+            this.textBox14 = new System.Windows.Forms.TextBox();
+            this.textBox24 = new System.Windows.Forms.TextBox();
+            this.textBox22 = new System.Windows.Forms.TextBox();
+            this.textBox23 = new System.Windows.Forms.TextBox();
             this.label13 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
-            this.label16 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
-            this.textBox22 = new System.Windows.Forms.TextBox();
-            this.textBox24 = new System.Windows.Forms.TextBox();
-            this.textBox14 = new System.Windows.Forms.TextBox();
-            this.textBox19 = new System.Windows.Forms.TextBox();
-            this.textBox16 = new System.Windows.Forms.TextBox();
-            this.textBox15 = new System.Windows.Forms.TextBox();
-            this.textBox20 = new System.Windows.Forms.TextBox();
-            this.textBox21 = new System.Windows.Forms.TextBox();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.label9 = new System.Windows.Forms.Label();
             this.trackBar2 = new System.Windows.Forms.TrackBar();
@@ -113,6 +113,7 @@ namespace WinFormsApp4
             this.tabPage5.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).BeginInit();
+            this.groupBox1.SuspendLayout();
             this.tabPage3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar2)).BeginInit();
             this.tabPage2.SuspendLayout();
@@ -136,7 +137,6 @@ namespace WinFormsApp4
             // button3
             // 
             this.button3.BackColor = System.Drawing.SystemColors.GradientActiveCaption;
-            this.button3.Enabled = false;
             this.button3.Location = new System.Drawing.Point(176, 189);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(161, 27);
@@ -176,8 +176,8 @@ namespace WinFormsApp4
             // 
             this.label32.AutoSize = true;
             this.label32.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point);
-            this.label32.ForeColor = System.Drawing.SystemColors.ControlDark;
-            this.label32.Location = new System.Drawing.Point(706, 709);
+            this.label32.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.label32.Location = new System.Drawing.Point(630, 709);
             this.label32.Name = "label32";
             this.label32.Size = new System.Drawing.Size(39, 15);
             this.label32.TabIndex = 82;
@@ -206,9 +206,6 @@ namespace WinFormsApp4
             this.tabPage5.Controls.Add(this.label27);
             this.tabPage5.Controls.Add(this.textBox25);
             this.tabPage5.Controls.Add(this.label25);
-            this.tabPage5.Controls.Add(this.label22);
-            this.tabPage5.Controls.Add(this.label23);
-            this.tabPage5.Controls.Add(this.label24);
             this.tabPage5.Controls.Add(this.label21);
             this.tabPage5.Controls.Add(this.textBox18);
             this.tabPage5.Controls.Add(this.textBox17);
@@ -217,31 +214,19 @@ namespace WinFormsApp4
             this.tabPage5.Controls.Add(this.numericUpDown3);
             this.tabPage5.Controls.Add(this.numericUpDown2);
             this.tabPage5.Controls.Add(this.label19);
-            this.tabPage5.Controls.Add(this.textBox23);
             this.tabPage5.Controls.Add(this.label17);
-            this.tabPage5.Controls.Add(this.label13);
-            this.tabPage5.Controls.Add(this.label6);
             this.tabPage5.Controls.Add(this.label16);
-            this.tabPage5.Controls.Add(this.label7);
-            this.tabPage5.Controls.Add(this.textBox22);
-            this.tabPage5.Controls.Add(this.textBox24);
-            this.tabPage5.Controls.Add(this.textBox14);
-            this.tabPage5.Controls.Add(this.textBox19);
-            this.tabPage5.Controls.Add(this.textBox16);
-            this.tabPage5.Controls.Add(this.textBox15);
-            this.tabPage5.Controls.Add(this.textBox20);
-            this.tabPage5.Controls.Add(this.textBox21);
             this.tabPage5.Controls.Add(this.groupBox1);
             this.tabPage5.Location = new System.Drawing.Point(4, 24);
             this.tabPage5.Name = "tabPage5";
-            this.tabPage5.Size = new System.Drawing.Size(889, 143);
+            this.tabPage5.Size = new System.Drawing.Size(920, 143);
             this.tabPage5.TabIndex = 4;
             this.tabPage5.Text = "Рендер";
             // 
             // label27
             // 
             this.label27.AutoSize = true;
-            this.label27.Location = new System.Drawing.Point(477, 44);
+            this.label27.Location = new System.Drawing.Point(497, 44);
             this.label27.Name = "label27";
             this.label27.Size = new System.Drawing.Size(34, 15);
             this.label27.TabIndex = 88;
@@ -249,7 +234,7 @@ namespace WinFormsApp4
             // 
             // textBox25
             // 
-            this.textBox25.Location = new System.Drawing.Point(378, 41);
+            this.textBox25.Location = new System.Drawing.Point(398, 41);
             this.textBox25.Name = "textBox25";
             this.textBox25.Size = new System.Drawing.Size(93, 23);
             this.textBox25.TabIndex = 87;
@@ -258,43 +243,16 @@ namespace WinFormsApp4
             // label25
             // 
             this.label25.AutoSize = true;
-            this.label25.Location = new System.Drawing.Point(256, 41);
+            this.label25.Location = new System.Drawing.Point(276, 41);
             this.label25.Name = "label25";
             this.label25.Size = new System.Drawing.Size(100, 15);
             this.label25.TabIndex = 86;
             this.label25.Text = "Название видео: ";
             // 
-            // label22
-            // 
-            this.label22.AutoSize = true;
-            this.label22.Location = new System.Drawing.Point(535, 47);
-            this.label22.Name = "label22";
-            this.label22.Size = new System.Drawing.Size(28, 15);
-            this.label22.TabIndex = 84;
-            this.label22.Text = "КУБ";
-            // 
-            // label23
-            // 
-            this.label23.AutoSize = true;
-            this.label23.Location = new System.Drawing.Point(535, 79);
-            this.label23.Name = "label23";
-            this.label23.Size = new System.Drawing.Size(75, 15);
-            this.label23.TabIndex = 82;
-            this.label23.Text = "ДОДЕКАЭДР";
-            // 
-            // label24
-            // 
-            this.label24.AutoSize = true;
-            this.label24.Location = new System.Drawing.Point(535, 111);
-            this.label24.Name = "label24";
-            this.label24.Size = new System.Drawing.Size(70, 15);
-            this.label24.TabIndex = 83;
-            this.label24.Text = "ИКОСАЭДР";
-            // 
             // label21
             // 
             this.label21.AutoSize = true;
-            this.label21.Location = new System.Drawing.Point(256, 12);
+            this.label21.Location = new System.Drawing.Point(276, 12);
             this.label21.Name = "label21";
             this.label21.Size = new System.Drawing.Size(116, 15);
             this.label21.TabIndex = 10;
@@ -302,7 +260,7 @@ namespace WinFormsApp4
             // 
             // textBox18
             // 
-            this.textBox18.Location = new System.Drawing.Point(378, 12);
+            this.textBox18.Location = new System.Drawing.Point(398, 12);
             this.textBox18.Name = "textBox18";
             this.textBox18.Size = new System.Drawing.Size(93, 23);
             this.textBox18.TabIndex = 9;
@@ -311,7 +269,7 @@ namespace WinFormsApp4
             // 
             // textBox17
             // 
-            this.textBox17.Location = new System.Drawing.Point(213, 12);
+            this.textBox17.Location = new System.Drawing.Point(233, 12);
             this.textBox17.Name = "textBox17";
             this.textBox17.Size = new System.Drawing.Size(36, 23);
             this.textBox17.TabIndex = 3;
@@ -320,7 +278,7 @@ namespace WinFormsApp4
             // 
             // textBox13
             // 
-            this.textBox13.Location = new System.Drawing.Point(154, 12);
+            this.textBox13.Location = new System.Drawing.Point(174, 12);
             this.textBox13.Name = "textBox13";
             this.textBox13.Size = new System.Drawing.Size(33, 23);
             this.textBox13.TabIndex = 2;
@@ -338,7 +296,7 @@ namespace WinFormsApp4
             // 
             // numericUpDown3
             // 
-            this.numericUpDown3.Location = new System.Drawing.Point(154, 102);
+            this.numericUpDown3.Location = new System.Drawing.Point(174, 102);
             this.numericUpDown3.Maximum = new decimal(new int[] {
             10,
             0,
@@ -360,7 +318,7 @@ namespace WinFormsApp4
             // 
             // numericUpDown2
             // 
-            this.numericUpDown2.Location = new System.Drawing.Point(154, 55);
+            this.numericUpDown2.Location = new System.Drawing.Point(174, 55);
             this.numericUpDown2.Maximum = new decimal(new int[] {
             10,
             0,
@@ -389,41 +347,14 @@ namespace WinFormsApp4
             this.label19.TabIndex = 5;
             this.label19.Text = "Качество рендера (SSAA):";
             // 
-            // textBox23
-            // 
-            this.textBox23.Location = new System.Drawing.Point(807, 73);
-            this.textBox23.Name = "textBox23";
-            this.textBox23.Size = new System.Drawing.Size(74, 23);
-            this.textBox23.TabIndex = 50;
-            this.textBox23.Text = "0";
-            this.textBox23.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox1_KeyPress);
-            // 
             // label17
             // 
             this.label17.AutoSize = true;
-            this.label17.Location = new System.Drawing.Point(193, 15);
+            this.label17.Location = new System.Drawing.Point(213, 15);
             this.label17.Name = "label17";
             this.label17.Size = new System.Drawing.Size(14, 15);
             this.label17.TabIndex = 4;
             this.label17.Text = "Х";
-            // 
-            // label13
-            // 
-            this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(624, 12);
-            this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(68, 15);
-            this.label13.TabIndex = 27;
-            this.label13.Text = "kr 0<=r<=1";
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(717, 12);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(78, 15);
-            this.label6.TabIndex = 80;
-            this.label6.Text = "kref 0<=r<=1";
             // 
             // label16
             // 
@@ -434,95 +365,164 @@ namespace WinFormsApp4
             this.label16.TabIndex = 1;
             this.label16.Text = "Выходное разрешение:";
             // 
-            // label7
+            // groupBox1
             // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(810, 12);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(60, 15);
-            this.label7.TabIndex = 81;
-            this.label7.Text = "nobj r>=0";
+            this.groupBox1.Controls.Add(this.label22);
+            this.groupBox1.Controls.Add(this.textBox21);
+            this.groupBox1.Controls.Add(this.textBox20);
+            this.groupBox1.Controls.Add(this.textBox15);
+            this.groupBox1.Controls.Add(this.label23);
+            this.groupBox1.Controls.Add(this.textBox16);
+            this.groupBox1.Controls.Add(this.label24);
+            this.groupBox1.Controls.Add(this.textBox19);
+            this.groupBox1.Controls.Add(this.textBox14);
+            this.groupBox1.Controls.Add(this.textBox24);
+            this.groupBox1.Controls.Add(this.textBox22);
+            this.groupBox1.Controls.Add(this.textBox23);
+            this.groupBox1.Controls.Add(this.label13);
+            this.groupBox1.Controls.Add(this.label6);
+            this.groupBox1.Controls.Add(this.label7);
+            this.groupBox1.Location = new System.Drawing.Point(540, 3);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(368, 137);
+            this.groupBox1.TabIndex = 85;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Рендер фигур";
             // 
-            // textBox22
+            // label22
             // 
-            this.textBox22.Location = new System.Drawing.Point(807, 44);
-            this.textBox22.Name = "textBox22";
-            this.textBox22.Size = new System.Drawing.Size(74, 23);
-            this.textBox22.TabIndex = 49;
-            this.textBox22.Text = "0";
-            this.textBox22.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox1_KeyPress);
-            // 
-            // textBox24
-            // 
-            this.textBox24.Location = new System.Drawing.Point(807, 105);
-            this.textBox24.Name = "textBox24";
-            this.textBox24.Size = new System.Drawing.Size(74, 23);
-            this.textBox24.TabIndex = 58;
-            this.textBox24.Text = "0";
-            this.textBox24.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox1_KeyPress);
-            // 
-            // textBox14
-            // 
-            this.textBox14.Location = new System.Drawing.Point(621, 43);
-            this.textBox14.Name = "textBox14";
-            this.textBox14.Size = new System.Drawing.Size(74, 23);
-            this.textBox14.TabIndex = 26;
-            this.textBox14.Text = "0";
-            this.textBox14.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox1_KeyPress);
-            // 
-            // textBox19
-            // 
-            this.textBox19.Location = new System.Drawing.Point(714, 43);
-            this.textBox19.Name = "textBox19";
-            this.textBox19.Size = new System.Drawing.Size(74, 23);
-            this.textBox19.TabIndex = 42;
-            this.textBox19.Text = "0";
-            this.textBox19.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox1_KeyPress);
-            // 
-            // textBox16
-            // 
-            this.textBox16.Location = new System.Drawing.Point(621, 104);
-            this.textBox16.Name = "textBox16";
-            this.textBox16.Size = new System.Drawing.Size(74, 23);
-            this.textBox16.TabIndex = 29;
-            this.textBox16.Text = "0";
-            this.textBox16.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox1_KeyPress);
-            // 
-            // textBox15
-            // 
-            this.textBox15.Location = new System.Drawing.Point(621, 72);
-            this.textBox15.Name = "textBox15";
-            this.textBox15.Size = new System.Drawing.Size(74, 23);
-            this.textBox15.TabIndex = 30;
-            this.textBox15.Text = "0";
-            this.textBox15.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox1_KeyPress);
-            // 
-            // textBox20
-            // 
-            this.textBox20.Location = new System.Drawing.Point(714, 72);
-            this.textBox20.Name = "textBox20";
-            this.textBox20.Size = new System.Drawing.Size(74, 23);
-            this.textBox20.TabIndex = 43;
-            this.textBox20.Text = "0";
-            this.textBox20.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox1_KeyPress);
+            this.label22.AutoSize = true;
+            this.label22.Location = new System.Drawing.Point(18, 49);
+            this.label22.Name = "label22";
+            this.label22.Size = new System.Drawing.Size(28, 15);
+            this.label22.TabIndex = 84;
+            this.label22.Text = "КУБ";
             // 
             // textBox21
             // 
-            this.textBox21.Location = new System.Drawing.Point(714, 104);
+            this.textBox21.Location = new System.Drawing.Point(197, 106);
             this.textBox21.Name = "textBox21";
             this.textBox21.Size = new System.Drawing.Size(74, 23);
             this.textBox21.TabIndex = 57;
             this.textBox21.Text = "0";
             this.textBox21.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox1_KeyPress);
             // 
-            // groupBox1
+            // textBox20
             // 
-            this.groupBox1.Location = new System.Drawing.Point(525, 3);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(368, 137);
-            this.groupBox1.TabIndex = 85;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Рендер фигур";
+            this.textBox20.Location = new System.Drawing.Point(197, 74);
+            this.textBox20.Name = "textBox20";
+            this.textBox20.Size = new System.Drawing.Size(74, 23);
+            this.textBox20.TabIndex = 43;
+            this.textBox20.Text = "0";
+            this.textBox20.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox1_KeyPress);
+            // 
+            // textBox15
+            // 
+            this.textBox15.Location = new System.Drawing.Point(104, 74);
+            this.textBox15.Name = "textBox15";
+            this.textBox15.Size = new System.Drawing.Size(74, 23);
+            this.textBox15.TabIndex = 30;
+            this.textBox15.Text = "0";
+            this.textBox15.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox1_KeyPress);
+            // 
+            // label23
+            // 
+            this.label23.AutoSize = true;
+            this.label23.Location = new System.Drawing.Point(18, 81);
+            this.label23.Name = "label23";
+            this.label23.Size = new System.Drawing.Size(75, 15);
+            this.label23.TabIndex = 82;
+            this.label23.Text = "ДОДЕКАЭДР";
+            // 
+            // textBox16
+            // 
+            this.textBox16.Location = new System.Drawing.Point(104, 106);
+            this.textBox16.Name = "textBox16";
+            this.textBox16.Size = new System.Drawing.Size(74, 23);
+            this.textBox16.TabIndex = 29;
+            this.textBox16.Text = "0";
+            this.textBox16.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox1_KeyPress);
+            // 
+            // label24
+            // 
+            this.label24.AutoSize = true;
+            this.label24.Location = new System.Drawing.Point(18, 113);
+            this.label24.Name = "label24";
+            this.label24.Size = new System.Drawing.Size(70, 15);
+            this.label24.TabIndex = 83;
+            this.label24.Text = "ИКОСАЭДР";
+            // 
+            // textBox19
+            // 
+            this.textBox19.Location = new System.Drawing.Point(197, 45);
+            this.textBox19.Name = "textBox19";
+            this.textBox19.Size = new System.Drawing.Size(74, 23);
+            this.textBox19.TabIndex = 42;
+            this.textBox19.Text = "0";
+            this.textBox19.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox1_KeyPress);
+            // 
+            // textBox14
+            // 
+            this.textBox14.Location = new System.Drawing.Point(104, 45);
+            this.textBox14.Name = "textBox14";
+            this.textBox14.Size = new System.Drawing.Size(74, 23);
+            this.textBox14.TabIndex = 26;
+            this.textBox14.Text = "0";
+            this.textBox14.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox1_KeyPress);
+            // 
+            // textBox24
+            // 
+            this.textBox24.Location = new System.Drawing.Point(290, 107);
+            this.textBox24.Name = "textBox24";
+            this.textBox24.Size = new System.Drawing.Size(74, 23);
+            this.textBox24.TabIndex = 58;
+            this.textBox24.Text = "0";
+            this.textBox24.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox1_KeyPress);
+            // 
+            // textBox22
+            // 
+            this.textBox22.Location = new System.Drawing.Point(290, 46);
+            this.textBox22.Name = "textBox22";
+            this.textBox22.Size = new System.Drawing.Size(74, 23);
+            this.textBox22.TabIndex = 49;
+            this.textBox22.Text = "0";
+            this.textBox22.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox1_KeyPress);
+            // 
+            // textBox23
+            // 
+            this.textBox23.Location = new System.Drawing.Point(290, 75);
+            this.textBox23.Name = "textBox23";
+            this.textBox23.Size = new System.Drawing.Size(74, 23);
+            this.textBox23.TabIndex = 50;
+            this.textBox23.Text = "0";
+            this.textBox23.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox1_KeyPress);
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(104, 19);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(68, 15);
+            this.label13.TabIndex = 27;
+            this.label13.Text = "kr 0<=r<=1";
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(197, 19);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(78, 15);
+            this.label6.TabIndex = 80;
+            this.label6.Text = "kref 0<=r<=1";
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(290, 19);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(60, 15);
+            this.label7.TabIndex = 81;
+            this.label7.Text = "nobj r>=0";
             // 
             // tabPage3
             // 
@@ -531,7 +531,7 @@ namespace WinFormsApp4
             this.tabPage3.Controls.Add(this.label11);
             this.tabPage3.Location = new System.Drawing.Point(4, 24);
             this.tabPage3.Name = "tabPage3";
-            this.tabPage3.Size = new System.Drawing.Size(889, 143);
+            this.tabPage3.Size = new System.Drawing.Size(920, 143);
             this.tabPage3.TabIndex = 2;
             this.tabPage3.Text = "Камера";
             this.tabPage3.UseVisualStyleBackColor = true;
@@ -580,7 +580,7 @@ namespace WinFormsApp4
             this.tabPage2.Location = new System.Drawing.Point(4, 24);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(889, 143);
+            this.tabPage2.Size = new System.Drawing.Size(920, 143);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Пол";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -717,7 +717,7 @@ namespace WinFormsApp4
             this.tabPage1.Location = new System.Drawing.Point(4, 24);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(889, 143);
+            this.tabPage1.Size = new System.Drawing.Size(920, 143);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Фигуры";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -742,6 +742,7 @@ namespace WinFormsApp4
             this.textBox1.TabIndex = 1;
             this.textBox1.Text = "1";
             this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
+            this.textBox1.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox1_KeyDown);
             this.textBox1.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBox1_KeyPress);
             // 
             // textBox2
@@ -947,10 +948,10 @@ namespace WinFormsApp4
             this.tabControl1.Controls.Add(this.tabPage2);
             this.tabControl1.Controls.Add(this.tabPage3);
             this.tabControl1.Controls.Add(this.tabPage5);
-            this.tabControl1.Location = new System.Drawing.Point(20, 12);
+            this.tabControl1.Location = new System.Drawing.Point(5, 7);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(897, 171);
+            this.tabControl1.Size = new System.Drawing.Size(928, 171);
             this.tabControl1.TabIndex = 93;
             // 
             // Form1
@@ -977,6 +978,8 @@ namespace WinFormsApp4
             this.tabPage5.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).EndInit();
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.tabPage3.ResumeLayout(false);
             this.tabPage3.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar2)).EndInit();
