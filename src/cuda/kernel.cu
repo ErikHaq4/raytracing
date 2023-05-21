@@ -478,7 +478,7 @@ int main(int argc, char **argv)
             (uint64)(2 * n_polygons) * sizeof(vec3) +        // нормали + цвета
             (uint64)(2 * n_lights) * sizeof(vec3) +          // глобальные источники света
             (uint64)(2 * n_polygons) * sizeof(float) +       // krs + krefs
-            (uint64)(2 * N_FLOOR_POLYGONS) * sizeof(vec3);  // ax, ay
+            (uint64)(2 * N_FLOOR_POLYGONS) * sizeof(vec3);   // ax, ay
 
         MEM_GPU_SIZE_EXTRA += 
             (uint64)((MAX_R + 1) * ws * hs) * sizeof(frame) + // stack 
@@ -488,9 +488,9 @@ int main(int argc, char **argv)
         res = cudaMalloc(&MEM_GPU, (size_t)(MEM_GPU_SIZE + MEM_GPU_SIZE_EXTRA));
         if (res != cudaSuccess)
         {
-            printf("Warning: Not enough GPU memory to efficient algorithm\n");
+            printf("Warning: Not enough GPU memory for efficient algorithm\n");
 
-            res = cudaMalloc(&MEM_GPU, (size_t)(MEM_GPU_SIZE));
+            res = cudaMalloc(&MEM_GPU, (size_t)MEM_GPU_SIZE);
             if (res != cudaSuccess)
             {
                 printf("ERROR: Not enough GPU memory to make operation\n");
@@ -504,12 +504,6 @@ int main(int argc, char **argv)
 
         printf("GPU mem usage = %.2f Gb\n",
                (float)MEM_GPU_SIZE / (float)(1024 * 1024 * 1024));
-
-        if (res != cudaSuccess)
-        {
-            printf("Error: Not enough GPU memory to make operation\n");
-            goto FREE2;
-        }
 
         pixels_dev = MEM_GPU;
         pixels_SSAA_dev = pixels_dev + w * h;
