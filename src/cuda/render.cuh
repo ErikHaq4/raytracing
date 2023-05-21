@@ -231,6 +231,38 @@ void render_kernel(int nrays,
     }
 }
 
+__device__ 
+int inspect_stack_size(int num, int MAX_R, node **tree)
+{
+    if (MAX_R == 0)
+        return 1;
+    else if (tree[0][num].kr <= 0 && tree[0][num].kref <= 0 || tree[0][num].k == -1)
+        return 1;
+    else if (MAX_R >= 1 && tree[1][tree[0][num].left].k == -1 && tree[1][tree[0][num].right].k == -1)
+        return 2;
+    else
+        return MAX_R + 1;
+}
+
+__global__
+void inspect_stack_size_kernel(int w, int h, int MAX_R, node **tree, int *stack_size)
+{
+    int idx = blockIdx.x * blockDim.x + threadIdx.x,
+        idy = blockIdx.y * blockDim.y + threadIdx.y,
+        offsetx = blockDim.x * gridDim.x,
+        offsety = blockDim.y * gridDim.y;
+
+    int y, x;
+
+    for (y = idy; y < h; y += offsety)
+    {
+        for (x = idx; x < w; x += offsetx)
+        {
+            stack_size[y * w + x] = inspect_stack_size(y * w + x, MAX_R - 1, tree);
+        }
+    }
+}
+
 struct small_node
 {
     vec3 color;
@@ -359,7 +391,7 @@ vec3 calculate_color_recursiveless(int num, int R, int MAX_R,
 }
 
 __global__ 
-void calculate_color_kernel(int w, int h, uchar4 *im, int MAX_R, node **tree, frame *stack)
+void calculate_color_kernel(int w, int h, uchar4 *im, int MAX_R, node **tree, frame *stack, int *stack_size)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x,
         idy = blockIdx.y * blockDim.y + threadIdx.y,
@@ -372,7 +404,7 @@ void calculate_color_kernel(int w, int h, uchar4 *im, int MAX_R, node **tree, fr
     {
         for (x = idx; x < w; x += offsetx)
         {
-            im[(h - 1 - y) * w + x] = color2bytes(calculate_color_recursiveless(y * w + x, 0, MAX_R - 1, tree, stack + y * w * MAX_R + x * MAX_R));
+            im[(h - 1 - y) * w + x] = color2bytes(calculate_color_recursiveless(y * w + x, 0, MAX_R - 1, tree, stack + stack_size[y * w + x]));
         }
     }
 }

@@ -34,7 +34,6 @@ using thrust::sort;
 
 // to do: 1) добавить выравнивание всех массивов на 64 (сейчас используется выравнивание на 32)
 //        2) использование текстурной памяти
-//        3) уменьшить число потребляемой памяти для эффективного алгоритма
 
 //#define DEBUG
 
@@ -466,7 +465,8 @@ int main(int argc, char **argv)
 
     frame *stack;
     node **table;
-
+    int *stack_size;
+    
     uint64 MEM_GPU_SIZE = 0, MEM_GPU_SIZE_EXTRA = 0;
 
     if (is_GPU)
@@ -481,8 +481,8 @@ int main(int argc, char **argv)
             (uint64)(2 * N_FLOOR_POLYGONS) * sizeof(vec3);   // ax, ay
 
         MEM_GPU_SIZE_EXTRA += 
-            (uint64)((MAX_R + 1) * ws * hs) * sizeof(frame) + // stack 
-            (uint64)(MAX_R + 1) * sizeof(node **);            // table
+            (uint64)(MAX_R + 1) * sizeof(node **) +           // table
+            (uint64)(ws * hs + 1) * sizeof(int);              // stack_size
 
         /* Выделение памяти на GPU */
         res = cudaMalloc(&MEM_GPU, (size_t)(MEM_GPU_SIZE + MEM_GPU_SIZE_EXTRA));
@@ -524,8 +524,8 @@ int main(int argc, char **argv)
 
         if (MEM_GPU_SIZE_EXTRA > 0)
         {
-            stack = (frame *)(ay_dev + N_FLOOR_POLYGONS);
-            table = (node **)(stack + (MAX_R + 1) * ws * hs);
+            table = (node **)(ay_dev + N_FLOOR_POLYGONS);
+            stack_size = (int *)(table + (MAX_R + 1));
         }
 
         CSC(cudaMemcpyAsync(tex_dev, tex, wtex * htex * sizeof(uchar4), cudaMemcpyHostToDevice));
@@ -553,6 +553,15 @@ int main(int argc, char **argv)
 
     if (is_GPU)
     {
+        int STACK_SIZE = ws * hs;
+        /* Выделение памяти под стэк */
+        res = cudaMalloc(&stack, STACK_SIZE * sizeof(frame));
+        if (res != cudaSuccess)
+        {
+            printf("Error: Not enough GPU memory to make operation\n");
+            goto FREE;
+        }
+
         /* Выделенение памяти под указатели на элементы в каждом уровне */
         tree = (node **)malloc(2 * (MAX_R + 1) * sizeof(node *) +
                                2 * (MAX_R + 1) * sizeof(int));
@@ -672,8 +681,27 @@ int main(int argc, char **argv)
             if (MEM_GPU_SIZE_EXTRA > 0) // эффективный алгоритм
             {
                 cudaMemcpy(table, tree_dev, R * sizeof(node **), cudaMemcpyHostToDevice);
+                inspect_stack_size_kernel<<<SSAA_grid.first, SSAA_grid.second>>>
+                    (ws, hs, R, table, stack_size + 1);
+                auto ptr = thrust::device_pointer_cast(stack_size + 1);
+                thrust::inclusive_scan(thrust::device, ptr, ptr + ws * hs, ptr);
+                cudaMemset(stack_size, 0, 1 * sizeof(int));
+                int sum_size;
+                cudaMemcpy(&sum_size, stack_size + ws * hs, 1 * sizeof(int), cudaMemcpyDeviceToHost);
+                if (sum_size > STACK_SIZE)
+                {
+                    cudaFree(stack);
+                    STACK_SIZE = (int)((float)sum_size * 1.2f);
+                    res = cudaMalloc(&stack, STACK_SIZE * sizeof(frame));
+                    if (res != cudaSuccess)
+                    {
+                        printf("Error: Not enough GPU memory to make operation\n");
+                        goto FREE;
+                    }
+                }
+
                 calculate_color_kernel<<<SSAA_grid.first, SSAA_grid.second>>>
-                    (ws, hs, pixels_SSAA_dev, R, table, stack);
+                    (ws, hs, pixels_SSAA_dev, R, table, stack, stack_size);
                 DCSC(cudaDeviceSynchronize());
                 DCSC(cudaGetLastError());
             }
@@ -725,6 +753,7 @@ int main(int argc, char **argv)
             free(tree[i]);
             CSC(cudaFree(tree_dev[i]));
         }
+        cudaFree(stack);
         free(tree);
     }
     else // CPU
