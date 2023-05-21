@@ -139,8 +139,8 @@ namespace WinFormsApp4
 
 
             pictureBox1.Image = null;
-            label11.Text = "90";
-            trackBar2.Value = 90;
+            label11.Text = "120";
+            trackBar2.Value = 120;
 
             System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("en-US");
 
@@ -279,32 +279,34 @@ namespace WinFormsApp4
                + " -h" + " " + "400"
                + " -fov" + " " + label11.Text
                + " -nframes" + " " + "10"
-               + " -rmax" + " " + "0"
+               + " -rmax" + " " + "2"
                + " -floor -20 15 0    20 15 0    20 -15 0    -20 -15 0 " + floor + " 0 1 0    0.6";
+
+
+
+
+            /* int i = 0;
+              var task = RunProcessAsync(prc, arg1 + fastrend);
+
+
+              while (currentThread.IsAlive)
+              {
+                  progressBar1.Value = i % (progressBar1.Maximum + 1);
+                  Thread.Sleep(100);
+                  i += 10;
+
+
+
+              await task;
+
+            }*/
             
-
-
-
-          /* int i = 0;
-            var task = RunProcessAsync(prc, arg1 + fastrend);
-            
-
-            while (currentThread.IsAlive)
-            {
-                progressBar1.Value = i % (progressBar1.Maximum + 1);
-                Thread.Sleep(100);
-                i += 10;
-
-           
-
-            await task;
-           
-          }*/
-
             RunProcessSync(prc1, arg1 + fastrend);
             RunProcessSync(prc1, arg1 + " -conv -int2png -all");
             trackBar1.Visible = true;
             trackBar1.Enabled = true;
+
+
             if (trackBar1.Value == trackBar1.Maximum)
             {
                 trackBar1.Value -= 1;
@@ -322,6 +324,7 @@ namespace WinFormsApp4
 
                 trackBar1.Value -= 1; 
             }
+            
            
         }
         private void trackBar1_Scroll(object sender, EventArgs e)
@@ -455,8 +458,9 @@ namespace WinFormsApp4
                 pictureBox2.Image = Image.FromFile(filename);
                 MessageBox.Show("Текстура загружена");
                 label26.Text = filename;
-                RunProcessSync(prc, arg1 + "-conv -png2int " + filename + "  " + filename + ".dat");
+                RunProcessSync(prc, arg1 + " -conv -png2int " + filename + "  " + filename + ".dat");
                 floor = filename + ".dat";
+                
             }
             else
             {

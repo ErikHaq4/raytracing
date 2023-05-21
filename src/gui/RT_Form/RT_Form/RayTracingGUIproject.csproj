@@ -13,10 +13,6 @@
     <PackageReference Include="Microsoft.PowerShell.SDK" Version="6.0.4" />
     <PackageReference Include="System.Management" Version="6.0.0" />
     <PackageReference Include="System.Management.Automation" Version="6.0.4" />
-    <PackageReference Include="WMPLib" Version="1.0.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>

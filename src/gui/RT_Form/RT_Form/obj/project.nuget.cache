@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "nuTCOzpiVex4aPG6qnH/Cn37SDhrucGx94gyUqA7+WWNy5UkQx9k/6dPcB1/srxbR/c2btXz64bmv8qnFq/S0Q==",
+  "dgSpecHash": "xJRlanCNGOo3egaSyATTRQwjAa4vCyzWo2V02dV2qPfs4OitTMDtVGs+1lX47bYl55ukPCfA0Ek+6YQuas2Krw==",
   "success": true,
   "projectFilePath": "C:\\Users\\Erik\\Desktop\\raytracing-main\\src\\gui\\RT_Form\\RT_Form\\RayTracingGUIproject.csproj",
   "expectedPackageFiles": [
@@ -150,19 +150,7 @@
     "C:\\Users\\Erik\\.nuget\\packages\\system.xml.xmldocument\\4.3.0\\system.xml.xmldocument.4.3.0.nupkg.sha512",
     "C:\\Users\\Erik\\.nuget\\packages\\system.xml.xmlserializer\\4.3.0\\system.xml.xmlserializer.4.3.0.nupkg.sha512",
     "C:\\Users\\Erik\\.nuget\\packages\\system.xml.xpath\\4.3.0\\system.xml.xpath.4.3.0.nupkg.sha512",
-    "C:\\Users\\Erik\\.nuget\\packages\\system.xml.xpath.xdocument\\4.3.0\\system.xml.xpath.xdocument.4.3.0.nupkg.sha512",
-    "C:\\Users\\Erik\\.nuget\\packages\\wmplib\\1.0.0\\wmplib.1.0.0.nupkg.sha512"
+    "C:\\Users\\Erik\\.nuget\\packages\\system.xml.xpath.xdocument\\4.3.0\\system.xml.xpath.xdocument.4.3.0.nupkg.sha512"
   ],
-  "logs": [
-    {
-      "code": "NU1701",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "Пакет \"WMPLib 1.0.0\" был восстановлен с помощью \".NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8\", а не целевой платформы проекта \".NETCoreApp,Version=v3.1\". Этот пакет может быть не полностью совместим с вашим проектом.",
-      "libraryId": "WMPLib",
-      "targetGraphs": [
-        ".NETCoreApp,Version=v3.1"
-      ]
-    }
-  ]
+  "logs": []
 }
