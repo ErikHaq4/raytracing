@@ -20,6 +20,8 @@
 #include "geometry.h"
 #include "volume.h"
 
+typedef uint64_t uint64;
+
 using std::chrono::high_resolution_clock;
 using std::chrono::milliseconds;
 using std::string;
@@ -32,7 +34,7 @@ using thrust::sort;
 
 // to do: 1) добавить выравнивание всех массивов на 64 (сейчас используется выравнивание на 32)
 //        2) использование текстурной памяти
-//        3) придумать более эффективный алгоритм преобразования рекурсии в итерацию на GPU
+//        3) уменьшить число потребляемой памяти для эффективного алгоритма
 
 //#define DEBUG
 
@@ -127,33 +129,6 @@ pair<dim3, dim3> optimal_grid2(int m, int n, pair<int, int> max_blocks = CUDA_BL
     }
 
     return { n_blocks, n_threads };
-}
-
-vec3 calculate_color(int num, int R, int MAX_R,
-                     node **tree)
-{
-    node nod = tree[R][num];
-    vec3 local_color = nod.color,
-         reflected_color = { 0, 0, 0 },
-         refracted_color = { 0, 0, 0 };
-
-    if (R == MAX_R || (nod.kr <= 0 && nod.kref <= 0) || nod.k == -1)
-    {
-        return local_color;
-    }
-    if (nod.left != -1)
-    {
-        reflected_color = calculate_color(nod.left, R + 1, MAX_R,
-                                          tree);
-    }
-    if (nod.right != -1)
-    {
-        refracted_color = calculate_color(nod.right, R + 1, MAX_R,
-                                          tree);
-    }
-    return (1 - nod.kr - nod.kref) * local_color +
-           nod.kr * reflected_color +
-           nod.kref * refracted_color;
 }
 
 struct partion_pred
@@ -356,13 +331,16 @@ int main(int argc, char **argv)
 
     tex_start = n_polygons - n_floor_polygons; // индекс начала текстурных полигонов
 
+    uint64 MEM_CPU_SIZE =
+        (uint64)(w * h) * sizeof(uchar4) +           // экран
+        (uint64)(wtex * htex) * sizeof(uchar4) +     // текстура
+        (uint64)(n_polygons) * sizeof(triangle) +    // полигоны
+        (uint64)(2 * n_polygons) * sizeof(vec3) +    // нормали + цвета
+        (uint64)(2 * n_lights) * sizeof(vec3) +      // глобальные источники света
+        (uint64)(2 * n_polygons) * sizeof(float);    // коэфф. отражения + коэфф. прозрачности
+
     /* ПЕРВОЕ ВЫДЕЛЕНИЕ ПАМЯТИ НА CPU */
-    MEM_CPU = (uchar4 *)malloc(w * h * sizeof(uchar4) +                       // экран
-                               wtex * htex * sizeof(uchar4)   +               // текстура
-                               n_polygons             * sizeof(triangle) +    // полигоны
-                               2 * n_polygons         * sizeof(vec3) +        // нормали + цвета
-                               2 * n_lights           * sizeof(vec3)   +      // глобальные источники света
-                               2 * n_polygons         * sizeof(float));       // коэфф. отражения + коэфф. прозрачности
+    MEM_CPU = (uchar4 *)malloc((size_t)MEM_CPU_SIZE);       
     
     if (!MEM_CPU)
     {
@@ -435,6 +413,8 @@ int main(int argc, char **argv)
         goto FREE1;
     }
 
+    MEM_CPU_SIZE += (uint64)(ws * hs) * sizeof(uchar4);
+
     if (in != stdin)
     {
         fclose(in);
@@ -481,17 +461,49 @@ int main(int argc, char **argv)
                floor_polygons, floor_normals, floor_colors, floor_krs, floor_krefs,
                ax, ay, wtex, htex);
 
+    printf("CPU mem usage = %.2f Gb\n",
+           (float)MEM_CPU_SIZE / (float)(1024 * 1024 * 1024));
+
+    frame *stack;
+    node **table;
+
+    uint64 MEM_GPU_SIZE = 0, MEM_GPU_SIZE_EXTRA = 0;
+
     if (is_GPU)
     {
+        MEM_GPU_SIZE += 
+            (uint64)(w * h + ws * hs) * sizeof(uchar4) +     // экран + растянутый экран
+            (uint64)(wtex * htex) * sizeof(uchar4) +         // текстура пола
+            (uint64)n_polygons * sizeof(triangle) +          // полигоны
+            (uint64)(2 * n_polygons) * sizeof(vec3) +        // нормали + цвета
+            (uint64)(2 * n_lights) * sizeof(vec3) +          // глобальные источники света
+            (uint64)(2 * n_polygons) * sizeof(float) +       // krs + krefs
+            (uint64)(2 * N_FLOOR_POLYGONS) * sizeof(vec3);  // ax, ay
+
+        MEM_GPU_SIZE_EXTRA += 
+            (uint64)((MAX_R + 1) * ws * hs) * sizeof(frame) + // stack 
+            (uint64)(MAX_R + 1) * sizeof(node **);            // table
+
         /* Выделение памяти на GPU */
-        res = cudaMalloc(&MEM_GPU, 
-                         (w * h + ws * hs)     * sizeof(uchar4) +     // экран + растянутый экран
-                         wtex * htex           * sizeof(uchar4) +     // текстура пола
-                         n_polygons            * sizeof(triangle) +   // полигоны
-                         2 * n_polygons        * sizeof(vec3) +       // нормали + цвета
-                         2 * n_lights          * sizeof(vec3) +       // глобальные источники света
-                         2 * n_polygons        * sizeof(float) +      // krs + krefs
-                         2 * N_FLOOR_POLYGONS  * sizeof(vec3));       // ax, ay
+        res = cudaMalloc(&MEM_GPU, (size_t)(MEM_GPU_SIZE + MEM_GPU_SIZE_EXTRA));
+        if (res != cudaSuccess)
+        {
+            printf("Warning: Not enough GPU memory to efficient algorithm\n");
+
+            res = cudaMalloc(&MEM_GPU, (size_t)(MEM_GPU_SIZE));
+            if (res != cudaSuccess)
+            {
+                printf("ERROR: Not enough GPU memory to make operation\n");
+                goto FREE2;
+            }
+
+            MEM_GPU_SIZE_EXTRA = 0;
+        }
+
+        MEM_GPU_SIZE += MEM_GPU_SIZE_EXTRA;
+
+        printf("GPU mem usage = %.2f Gb\n",
+               (float)MEM_GPU_SIZE / (float)(1024 * 1024 * 1024));
 
         if (res != cudaSuccess)
         {
@@ -515,6 +527,12 @@ int main(int argc, char **argv)
         
         ax_dev = (vec3 *)(krefs_dev + n_polygons);
         ay_dev = ax_dev + N_FLOOR_POLYGONS;
+
+        if (MEM_GPU_SIZE_EXTRA > 0)
+        {
+            stack = (frame *)(ay_dev + N_FLOOR_POLYGONS);
+            table = (node **)(stack + (MAX_R + 1) * ws * hs);
+        }
 
         CSC(cudaMemcpyAsync(tex_dev, tex, wtex * htex * sizeof(uchar4), cudaMemcpyHostToDevice));
         CSC(cudaMemcpyAsync(polygons_dev, polygons, n_polygons * sizeof(triangle), cudaMemcpyHostToDevice));
@@ -643,48 +661,44 @@ int main(int argc, char **argv)
 
             /* Копирование и сортировка */
 
-            for (k = 0; k < R - 1; k++)
+            for (k = 0; k < R - 1; k++) // последний уровень не сортируем
             {
                 ptr = thrust::device_pointer_cast(tree_dev[k]);
                 sort(thrust::device, ptr, ptr + n_levels[k], sort_greater());
-                CSC(cudaMemcpy(tree[k], tree_dev[k], n_levels[k] * sizeof(node), cudaMemcpyDeviceToHost));
             }
 
             if (MAX_R > 0 && n_rays == 0) /* Вырожденный случай: нужно сортировать последний уровень */
             {
                 ptr = thrust::device_pointer_cast(tree_dev[k]);
                 sort(thrust::device, ptr, ptr + n_levels[k], sort_greater());
-                CSC(cudaMemcpy(tree[k], tree_dev[k], n_levels[k] * sizeof(node), cudaMemcpyDeviceToHost));
             }
-            else /* Обычный случай: на последнем уровне уже отсортировано */
+
+            // раскрутка рекурсии
+
+            if (MEM_GPU_SIZE_EXTRA > 0) // эффективный алгоритм
             {
-                CSC(cudaMemcpy(tree[k], tree_dev[k], n_levels[k] * sizeof(node), cudaMemcpyDeviceToHost));
+                cudaMemcpy(table, tree_dev, R * sizeof(node **), cudaMemcpyHostToDevice);
+                calculate_color_kernel<<<SSAA_grid.first, SSAA_grid.second>>>
+                    (ws, hs, pixels_SSAA_dev, R, table, stack);
+                DCSC(cudaDeviceSynchronize());
+                DCSC(cudaGetLastError());
             }
-            
-            int size = hs,
-                block_size = (size - 1) / omp_threads + 1;
-
-#pragma omp parallel num_threads(omp_threads) private(y, x)
+            else // CPU-алгоритм
             {
-                int id = omp_get_thread_num(),
-                    nthrs = omp_get_num_threads();
-
-                int begin = id * block_size,
-                    end = MIN((id + 1) * block_size, size);
-
-                for (y = begin; y < end; y++)
+                for (k = 0; k < R; k++) // копирование дерева на CPU
                 {
-                    for (x = 0; x < ws; x++)
-                    {
-                        pixels_SSAA[(hs - 1 - y) * ws + x] = color2bytes(calculate_color(y * ws + x, 0, R - 1, tree));
-                    }
+                    CSC(cudaMemcpy(tree[k], tree_dev[k], n_levels[k] * sizeof(node), cudaMemcpyDeviceToHost));
                 }
+
+                calculate_color(ws, hs, R, tree, pixels_SSAA, omp_threads);
+
+                cudaMemcpy(pixels_SSAA_dev, pixels_SSAA, ws * hs * sizeof(uchar4), cudaMemcpyHostToDevice);
             }
-            std::fill(n_levels + 1, n_levels + 1 + MAX_R, 0);
+
+            std::fill(n_levels + 1, n_levels + 1 + MAX_R, 0); // очистка
 
             if (k_SSAA > 1)
             {
-                cudaMemcpy(pixels_SSAA_dev, pixels_SSAA, ws * hs * sizeof(uchar4), cudaMemcpyHostToDevice);
                 SSAA_kernel<<<SSAA_grid.first, SSAA_grid.second>>>
                             (pixels_dev, w, h, k_SSAA, k_SSAA, pixels_SSAA_dev);
                 DCSC(cudaDeviceSynchronize());
@@ -693,25 +707,7 @@ int main(int argc, char **argv)
             }
             else // k_SSAA == 1
             {
-                int size = h,
-                    block_size = (size - 1) / omp_threads + 1;
-
-                #pragma omp parallel num_threads(omp_threads) private(y, x)
-                {
-                    int id = omp_get_thread_num(),
-                        nthrs = omp_get_num_threads();
-
-                    int begin = id * block_size,
-                        end = MIN((id + 1) * block_size, size);
-
-                    for (y = begin; y < end; y++)
-                    {
-                        for (x = 0; x < w; x++)
-                        {
-                            pixels[y * w + x] = pixels_SSAA[y * w + x];
-                        }
-                    }
-                }
+                cudaMemcpy(pixels, pixels_SSAA_dev, w * h * sizeof(uchar4), cudaMemcpyDeviceToHost);
             }
             
             sprintf(buff, path2images, i);

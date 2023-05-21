@@ -10,19 +10,6 @@
 #include "geometry.h"
 #include "light.h"
 
-struct node
-{
-    vec3 pos;
-    vec3 dir;
-    vec3 color;
-    int k;       // номер полигона, с которым было столкновение
-    float kr;   // коэффициент отражения
-    float kref; // коэффициент прозрачности
-    int num;     // номер в отсортированном массиве
-    int left;    // левый сын
-    int right;   // правый сын
-};
-
 __device__
 node ray_dev(vec3 pos, vec3 dir,
              const triangle *polygons, const vec3 *normals, const vec3 *colors, const float *krs, const float *krefs, int n,
@@ -202,7 +189,6 @@ void render_kernel(int nrays,
 
     for (iray = idx; iray < nrays; iray += offsetx) // цикл по лучам
     {
-        
         pos =         prev_tree[iray].pos;   // точка на полигоне
         dir =         prev_tree[iray].dir;   // направление влёта в полигон
         k =           prev_tree[iray].k;     // номер полигона влёта
@@ -242,6 +228,152 @@ void render_kernel(int nrays,
         cur_tree[(iray << 1) + 1] = refracted_node;
         prev_tree[iray].left  = iray << 1;
         prev_tree[iray].right = (iray << 1) + 1;
+    }
+}
+
+struct small_node
+{
+    vec3 color;
+    int k;       // номер полигона, с которым было столкновение
+    float kr;   // коэффициент отражения
+    float kref; // коэффициент прозрачности
+    int num;     // номер в отсортированном массиве
+    int left;    // левый сын
+    int right;   // правый сын
+};
+
+struct frame 
+{
+    // локальные переменные
+    small_node nod;
+    vec3 local_color,
+         reflected_color,
+         refracted_color;
+    int segment;
+
+    // параметры
+    int num, 
+        R;
+};
+
+// алгоритм без рекурсии
+__device__
+vec3 calculate_color_recursiveless(int num, int R, int MAX_R,
+                                   node **tree, frame *stack)
+{
+    vec3 result;
+    int st = -1;
+    
+    st++;
+    stack[st].num = num;
+    stack[st].R = R;
+    stack[st].segment = 0;
+
+    while (st >= 0)
+    {
+        // текущий кадр
+        switch (stack[st].segment)
+        {
+        case 0:
+
+            // инициализация локальных переменных
+
+            stack[st].nod.color = tree[stack[st].R][stack[st].num].color;
+            stack[st].nod.k = tree[stack[st].R][stack[st].num].k;
+            stack[st].nod.kr = tree[stack[st].R][stack[st].num].kr;
+            stack[st].nod.kref = tree[stack[st].R][stack[st].num].kref;
+            stack[st].nod.num = tree[stack[st].R][stack[st].num].num;
+            stack[st].nod.left = tree[stack[st].R][stack[st].num].left;
+            stack[st].nod.right = tree[stack[st].R][stack[st].num].right;
+
+            stack[st].local_color = stack[st].nod.color;
+            stack[st].reflected_color = { 0, 0, 0 };
+            stack[st].refracted_color = { 0, 0, 0 };
+
+            if (stack[st].R == MAX_R || (stack[st].nod.kr <= 0 && stack[st].nod.kref <= 0) || stack[st].nod.k == -1) // 1 предикат
+            {
+                result = stack[st].local_color;
+                st--; // pop
+                break;
+            }
+            if (stack[st].nod.left != -1) // 2 предикат
+            {
+                // новый кадр
+                stack[st + 1].num = stack[st].nod.left;
+                stack[st + 1].R = stack[st].R + 1;
+                stack[st + 1].segment = 0;
+
+                stack[st].segment = 1; // ожидание 1
+                st++;
+                break;
+            }
+            if (stack[st].nod.right != -1) // 3 предикат
+            {
+                // новый кадр
+                stack[st + 1].num = stack[st].nod.right;
+                stack[st + 1].R = stack[st].R + 1;
+                stack[st + 1].segment = 0;
+
+                stack[st].segment = 2; // ожидание 2
+                st++;
+                break;
+            }
+            result = (1 - stack[st].nod.kr - stack[st].nod.kref) * stack[st].local_color +
+                      stack[st].nod.kr * stack[st].reflected_color +
+                      stack[st].nod.kref * stack[st].refracted_color;
+            st--; // pop
+            break;
+
+        case 1:
+
+            stack[st].reflected_color = result; // получили результат
+
+            if (stack[st].nod.right != -1) //третий предикат
+            {
+                // новый кадр
+                stack[st + 1].num = stack[st].nod.right;
+                stack[st + 1].R = stack[st].R + 1;
+                stack[st + 1].segment = 0;
+
+                stack[st].segment = 2; // ожидание 2
+                st++;
+                break;
+            }
+            result = (1 - stack[st].nod.kr - stack[st].nod.kref) * stack[st].local_color +
+                      stack[st].nod.kr * stack[st].reflected_color +
+                      stack[st].nod.kref * stack[st].refracted_color;
+            st--; // pop
+            break;
+
+        default: // case 2
+
+            stack[st].refracted_color = result; // получили результат
+            result = (1 - stack[st].nod.kr - stack[st].nod.kref) * stack[st].local_color +
+                      stack[st].nod.kr * stack[st].reflected_color +
+                      stack[st].nod.kref * stack[st].refracted_color;
+            st--; // pop
+        }
+    }
+
+    return result;
+}
+
+__global__ 
+void calculate_color_kernel(int w, int h, uchar4 *im, int MAX_R, node **tree, frame *stack)
+{
+    int idx = blockIdx.x * blockDim.x + threadIdx.x,
+        idy = blockIdx.y * blockDim.y + threadIdx.y,
+        offsetx = blockDim.x * gridDim.x,
+        offsety = blockDim.y * gridDim.y;
+
+    int y, x;
+
+    for (y = idy; y < h; y += offsety)
+    {
+        for (x = idx; x < w; x += offsetx)
+        {
+            im[(h - 1 - y) * w + x] = color2bytes(calculate_color_recursiveless(y * w + x, 0, MAX_R - 1, tree, stack + y * w * MAX_R + x * MAX_R));
+        }
     }
 }
 

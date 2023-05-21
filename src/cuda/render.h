@@ -181,6 +181,61 @@ void render(const vec3 &pc, const vec3 &pv,
     }
 }
 
+// рекурсивный алгоритм
+vec3 calculate_color_recursive(int num, int R, int MAX_R,
+                               node **tree)
+{
+    node nod = tree[R][num];
+    vec3 local_color = nod.color,
+         reflected_color = { 0, 0, 0 },
+         refracted_color = { 0, 0, 0 };
+
+    if (R == MAX_R || (nod.kr <= 0 && nod.kref <= 0) || nod.k == -1)
+    {
+        return local_color;
+    }
+    if (nod.left != -1)
+    {
+        reflected_color = calculate_color_recursive(nod.left, R + 1, MAX_R,
+                                                    tree);
+    }
+    if (nod.right != -1)
+    {
+        refracted_color = calculate_color_recursive(nod.right, R + 1, MAX_R,
+                                                    tree);
+    }
+    return (1 - nod.kr - nod.kref) * local_color +
+           nod.kr * reflected_color +
+           nod.kref * refracted_color;
+}
+
+void calculate_color(int w, int h, int MAX_R, node **tree, uchar4 *dst, int threads=1)
+{
+    int size = h;
+    threads = MIN(size, threads);
+
+    int block_size = (size - 1) / threads + 1;
+    int y, x;
+
+#pragma omp parallel num_threads(threads) private(y, x)
+    {
+        int id = omp_get_thread_num(),
+            nthrs = omp_get_num_threads();
+
+        int begin = id * block_size,
+            end = MIN((id + 1) * block_size, size);
+
+        for (y = begin; y < end; y++)
+        {
+            for (x = 0; x < w; x++)
+            {
+                dst[(h - 1 - y) * w + x] = color2bytes(calculate_color_recursive(y * w + x, 0, MAX_R - 1, 
+                                                                                 tree));
+            }
+        }
+    }
+}
+
 void SSAA(uchar4 *dst, int w, int h, int kw, int kh,
           const uchar4 *src, int threads=1)
 {
@@ -188,6 +243,7 @@ void SSAA(uchar4 *dst, int w, int h, int kw, int kh,
     float4 mid;
 
     int size = h;
+    threads = MIN(size, threads);
     int block_size = (size - 1) / threads + 1;
 
 #pragma omp parallel num_threads(threads) private(y, x, j, i, mid, index)

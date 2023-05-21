@@ -42,6 +42,19 @@ struct tex_triangle
     vec2 c;
 };
 
+struct node
+{
+    vec3 pos;
+    vec3 dir;
+    vec3 color;
+    int k;       // номер полигона, с которым было столкновение
+    float kr;   // коэффициент отражения
+    float kref; // коэффициент прозрачности
+    int num;     // номер в отсортированном массиве
+    int left;    // левый сын
+    int right;   // правый сын
+};
+
 __host__ __device__
 float dot(vec3 a, vec3 b)
 {
