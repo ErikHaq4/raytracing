@@ -133,7 +133,7 @@ pair<dim3, dim3> optimal_grid2(int m, int n, pair<int, int> max_blocks = CUDA_BL
 struct partion_pred
 {
     __host__ __device__
-    bool operator()(node n)
+        bool operator()(node n)
     {
         return n.k >= 0 && (n.kr > 0 || n.kref > 0);
     }
@@ -142,7 +142,7 @@ struct partion_pred
 struct sort_greater
 {
     __host__ __device__
-    bool operator()(node a, node b)
+        bool operator()(node a, node b)
     {
         return a.num < b.num;
     }
@@ -157,28 +157,28 @@ int main(int argc, char **argv)
         k_SSAA,
         wtex, htex,
         n_lights, MAX_R, R,
-        n_cube_lights, n_dodecahedron_lights, n_icosahedron_lights, 
+        n_cube_lights, n_dodecahedron_lights, n_icosahedron_lights,
         n_cube_polygons, n_dodecahedron_polygons, n_icosahedron_polygons, n_floor_polygons,
         n_polygons, tex_start,
         n_rays, sum_rays;
     int *n_levels, *n_levels_size;
 
     float t, dt,
-          rc, r0c, Arc, omegarc, prc,
-          zc, z0c, Azc, omegazc, pzc,
-          phic, phi0c, omegaphic,
-          rv, r0v, Arv, omegarv, prv,
-          zv, z0v, Azv, omegazv, pzv,
-          phiv, phi0v, omegaphiv,
-          cube_R, cube_kr, cube_kref,
-          dodecahedron_R, dodecahedron_kr, dodecahedron_kref,
-          icosahedron_R, icosahedron_kr, icosahedron_kref,
-          floor_kr;
-    float *krs, *krefs, 
-          *cube_krs, *cube_krefs, 
-          *dodecahedron_krs, *dodecahedron_krefs,
-          *icosahedron_krs, *icosahedron_krefs,
-          *floor_krs, *floor_krefs;
+        rc, r0c, Arc, omegarc, prc,
+        zc, z0c, Azc, omegazc, pzc,
+        phic, phi0c, omegaphic,
+        rv, r0v, Arv, omegarv, prv,
+        zv, z0v, Azv, omegazv, pzv,
+        phiv, phi0v, omegaphiv,
+        cube_R, cube_kr, cube_kref,
+        dodecahedron_R, dodecahedron_kr, dodecahedron_kref,
+        icosahedron_R, icosahedron_kr, icosahedron_kref,
+        floor_kr;
+    float *krs, *krefs,
+        *cube_krs, *cube_krefs,
+        *dodecahedron_krs, *dodecahedron_krefs,
+        *icosahedron_krs, *icosahedron_krefs,
+        *floor_krs, *floor_krefs;
     float *krs_dev, *krefs_dev;
 
     char buff[256], path2images[256];
@@ -192,28 +192,28 @@ int main(int argc, char **argv)
     device_ptr<node> mid, ptr;
 
     vec3 pc, pv,
-         cube_center, cube_color,
-         dodecahedron_center, dodecahedron_color,
-         icosahedron_center, icosahedron_color,
-         floor_a, floor_b, floor_c, floor_d, floor_color;
+        cube_center, cube_color,
+        dodecahedron_center, dodecahedron_color,
+        icosahedron_center, icosahedron_color,
+        floor_a, floor_b, floor_c, floor_d, floor_color;
 
     vec3 ax[N_FLOOR_POLYGONS], ay[N_FLOOR_POLYGONS];
 
-    vec3 *normals, *colors, 
-         *light_points, *light_colors,
-         *cube_normals, *cube_colors,
-         *dodecahedron_normals, *dodecahedron_colors,
-         *icosahedron_normals, *icosahedron_colors,
-         *floor_normals, *floor_colors;
+    vec3 *normals, *colors,
+        *light_points, *light_colors,
+        *cube_normals, *cube_colors,
+        *dodecahedron_normals, *dodecahedron_colors,
+        *icosahedron_normals, *icosahedron_colors,
+        *floor_normals, *floor_colors;
     vec3 *normals_dev, *colors_dev,
-         *light_points_dev, *light_colors_dev,
-         *ax_dev, *ay_dev;
+        *light_points_dev, *light_colors_dev,
+        *ax_dev, *ay_dev;
 
     triangle *polygons,
-             *cube_polygons,
-             *dodecahedron_polygons,
-             *icosahedron_polygons,
-             *floor_polygons;
+        *cube_polygons,
+        *dodecahedron_polygons,
+        *icosahedron_polygons,
+        *floor_polygons;
     triangle *polygons_dev;
 
     node **tree = NULL, **tree_dev = NULL;
@@ -278,37 +278,37 @@ int main(int argc, char **argv)
 
     /* Параметры куба */
     fscanf(in, "%f %f %f %f %f %f %f %f %f %d",
-           &cube_center.x, &cube_center.y, &cube_center.z, 
-           &cube_R,
-           &cube_color.x, &cube_color.y, &cube_color.z,
-           &cube_kr, &cube_kref,
-           &n_cube_lights);
-    
+        &cube_center.x, &cube_center.y, &cube_center.z,
+        &cube_R,
+        &cube_color.x, &cube_color.y, &cube_color.z,
+        &cube_kr, &cube_kref,
+        &n_cube_lights);
+
     /* Параметры додекаэдра */
     fscanf(in, "%f %f %f %f %f %f %f %f %f %d",
-           &dodecahedron_center.x, &dodecahedron_center.y, &dodecahedron_center.z,
-           &dodecahedron_R,
-           &dodecahedron_color.x, &dodecahedron_color.y, &dodecahedron_color.z,
-           &dodecahedron_kr, &dodecahedron_kref,
-           &n_dodecahedron_lights);
+        &dodecahedron_center.x, &dodecahedron_center.y, &dodecahedron_center.z,
+        &dodecahedron_R,
+        &dodecahedron_color.x, &dodecahedron_color.y, &dodecahedron_color.z,
+        &dodecahedron_kr, &dodecahedron_kref,
+        &n_dodecahedron_lights);
 
     /* Параметры икосаэдра */
     fscanf(in, "%f %f %f %f %f %f %f %f %f %d",
-           &icosahedron_center.x, &icosahedron_center.y, &icosahedron_center.z,
-           &icosahedron_R,
-           &icosahedron_color.x, &icosahedron_color.y, &icosahedron_color.z,
-           &icosahedron_kr, &icosahedron_kref,
-           &n_icosahedron_lights);
-    
+        &icosahedron_center.x, &icosahedron_center.y, &icosahedron_center.z,
+        &icosahedron_R,
+        &icosahedron_color.x, &icosahedron_color.y, &icosahedron_color.z,
+        &icosahedron_kr, &icosahedron_kref,
+        &n_icosahedron_lights);
+
     /* Параметры пола */
     fscanf(in, "%f %f %f %f %f %f %f %f %f %f %f %f %s %f %f %f %f",
-           &floor_a.x, &floor_a.y, &floor_a.z, 
-           &floor_b.x, &floor_b.y, &floor_b.z,
-           &floor_c.x, &floor_c.y, &floor_c.z,
-           &floor_d.x, &floor_d.y, &floor_d.z,
-           buff,
-           &floor_color.x, &floor_color.y, &floor_color.z,
-           &floor_kr);
+        &floor_a.x, &floor_a.y, &floor_a.z,
+        &floor_b.x, &floor_b.y, &floor_b.z,
+        &floor_c.x, &floor_c.y, &floor_c.z,
+        &floor_d.x, &floor_d.y, &floor_d.z,
+        buff,
+        &floor_color.x, &floor_color.y, &floor_color.z,
+        &floor_kr);
 
     fp = fopen(buff, "rb");
     if (!fp)
@@ -339,8 +339,8 @@ int main(int argc, char **argv)
         (uint64)(2 * n_polygons) * sizeof(float);    // коэфф. отражения + коэфф. прозрачности
 
     /* ПЕРВОЕ ВЫДЕЛЕНИЕ ПАМЯТИ НА CPU */
-    MEM_CPU = (uchar4 *)malloc((size_t)MEM_CPU_SIZE);       
-    
+    MEM_CPU = (uchar4 *)malloc((size_t)MEM_CPU_SIZE);
+
     if (!MEM_CPU)
     {
         printf("Error: Not enough CPU memory to make operation\n");
@@ -391,8 +391,8 @@ int main(int argc, char **argv)
     for (i = 0; i < n_lights; i++)
     {
         fscanf(in, "%f %f %f %f %f %f",
-               (float *)light_points + 3 * i, (float *)light_points + 3 * i + 1, (float *)light_points + 3 * i + 2,
-               (float *)light_colors + 3 * i, (float *)light_colors + 3 * i + 1, (float *)light_colors + 3 * i + 2);
+            (float *)light_points + 3 * i, (float *)light_points + 3 * i + 1, (float *)light_points + 3 * i + 2,
+            (float *)light_colors + 3 * i, (float *)light_colors + 3 * i + 1, (float *)light_colors + 3 * i + 2);
     }
 
     /* Максимальная глубина рекурсии */
@@ -442,36 +442,36 @@ int main(int argc, char **argv)
     }
 
     make_cube(cube_center, cube_R, cube_color, cube_kr, cube_kref,
-              cube_polygons, cube_normals, cube_colors, 
-              cube_krs, cube_krefs, 
-              n_cube_lights);
+        cube_polygons, cube_normals, cube_colors,
+        cube_krs, cube_krefs,
+        n_cube_lights);
 
     make_dodecahedron(dodecahedron_center, dodecahedron_R, dodecahedron_color, dodecahedron_kr, dodecahedron_kref,
-                      dodecahedron_polygons, dodecahedron_normals, dodecahedron_colors, 
-                      dodecahedron_krs, dodecahedron_krefs,
-                      n_dodecahedron_lights);
+        dodecahedron_polygons, dodecahedron_normals, dodecahedron_colors,
+        dodecahedron_krs, dodecahedron_krefs,
+        n_dodecahedron_lights);
 
     make_icosahedron(icosahedron_center, icosahedron_R, icosahedron_color, icosahedron_kr, icosahedron_kref,
-                     icosahedron_polygons, icosahedron_normals, icosahedron_colors, 
-                     icosahedron_krs, icosahedron_krefs,
-                     n_icosahedron_lights);
+        icosahedron_polygons, icosahedron_normals, icosahedron_colors,
+        icosahedron_krs, icosahedron_krefs,
+        n_icosahedron_lights);
 
     make_floor(floor_a, floor_b, floor_c, floor_d, floor_color, floor_kr,
-               floor_polygons, floor_normals, floor_colors, floor_krs, floor_krefs,
-               ax, ay, wtex, htex);
+        floor_polygons, floor_normals, floor_colors, floor_krs, floor_krefs,
+        ax, ay, wtex, htex);
 
-    printf("CPU mem usage = %.2f Gb\n",
-           (float)MEM_CPU_SIZE / (float)(1024 * 1024 * 1024));
+    printf("Start CPU mem usage = %.2f Gb\n",
+        (float)MEM_CPU_SIZE / (float)(1024 * 1024 * 1024));
 
     frame *stack;
     node **table;
     int *stack_size;
-    
+
     uint64 MEM_GPU_SIZE = 0, MEM_GPU_SIZE_EXTRA = 0;
 
     if (is_GPU)
     {
-        MEM_GPU_SIZE += 
+        MEM_GPU_SIZE +=
             (uint64)(w * h + ws * hs) * sizeof(uchar4) +     // экран + растянутый экран
             (uint64)(wtex * htex) * sizeof(uchar4) +         // текстура пола
             (uint64)n_polygons * sizeof(triangle) +          // полигоны
@@ -480,7 +480,7 @@ int main(int argc, char **argv)
             (uint64)(2 * n_polygons) * sizeof(float) +       // krs + krefs
             (uint64)(2 * N_FLOOR_POLYGONS) * sizeof(vec3);   // ax, ay
 
-        MEM_GPU_SIZE_EXTRA += 
+        MEM_GPU_SIZE_EXTRA +=
             (uint64)(MAX_R + 1) * sizeof(node **) +           // table
             (uint64)(ws * hs + 1) * sizeof(int);              // stack_size
 
@@ -502,8 +502,8 @@ int main(int argc, char **argv)
 
         MEM_GPU_SIZE += MEM_GPU_SIZE_EXTRA;
 
-        printf("GPU mem usage = %.2f Gb\n",
-               (float)MEM_GPU_SIZE / (float)(1024 * 1024 * 1024));
+        printf("Start GPU mem usage = %.2f Gb\n",
+            (float)MEM_GPU_SIZE / (float)(1024 * 1024 * 1024));
 
         pixels_dev = MEM_GPU;
         pixels_SSAA_dev = pixels_dev + w * h;
@@ -518,7 +518,7 @@ int main(int argc, char **argv)
 
         krs_dev = (float *)(light_colors_dev + n_lights);
         krefs_dev = krs_dev + n_polygons;
-        
+
         ax_dev = (vec3 *)(krefs_dev + n_polygons);
         ay_dev = ax_dev + N_FLOOR_POLYGONS;
 
@@ -540,7 +540,7 @@ int main(int argc, char **argv)
         CSC(cudaMemcpyAsync(ay_dev, ay, N_FLOOR_POLYGONS * sizeof(vec3), cudaMemcpyHostToDevice));
         /* Конец выделения памяти на GPU */
     }
-    
+
     printf("%s run\n", is_GPU ? "GPU" : "CPU");
     printf("omp_threads = %d\n", omp_threads);
     if (is_GPU)
@@ -549,22 +549,33 @@ int main(int argc, char **argv)
     }
     printf("n_polygons = %d\n", n_polygons);
     printf("%12s|%12s|%12s\n",
-           "frame_number", "time2render", "num of rays");
+        "frame_number", "time2render", "num of rays");
 
     if (is_GPU)
     {
-        int STACK_SIZE = ws * hs;
-        /* Выделение памяти под стэк */
-        res = cudaMalloc(&stack, STACK_SIZE * sizeof(frame));
-        if (res != cudaSuccess)
+        int STACK_SIZE = 0;
+
+        if (MEM_GPU_SIZE_EXTRA > 0)
         {
-            printf("Error: Not enough GPU memory to make operation\n");
-            goto FREE;
+            STACK_SIZE += ws * hs;
+            /* Выделение памяти под стэк */
+            res = cudaMalloc(&stack, STACK_SIZE * sizeof(frame));
+            if (res != cudaSuccess)
+            {
+                printf("Error: Not enough GPU memory to make operation\n");
+                goto FREE;
+            }
         }
 
+        MEM_GPU_SIZE += (uint64)STACK_SIZE;
+
+        int tmp_size = 2 * (MAX_R + 1) * sizeof(node *) +
+            2 * (MAX_R + 1) * sizeof(int);
+
         /* Выделенение памяти под указатели на элементы в каждом уровне */
-        tree = (node **)malloc(2 * (MAX_R + 1) * sizeof(node *) +
-                               2 * (MAX_R + 1) * sizeof(int));
+        tree = (node **)malloc(tmp_size);
+        MEM_CPU_SIZE += (uint64)tmp_size;
+
         tree_dev = tree + MAX_R + 1;
         n_levels = (int *)(tree_dev + MAX_R + 1);
         n_levels_size = n_levels + MAX_R + 1;
@@ -578,7 +589,10 @@ int main(int argc, char **argv)
             printf("Error: Not enough CPU memory to make operation\n");
             goto FREE;
         }
+        MEM_CPU_SIZE += ws * hs * sizeof(node);
+
         CSC(cudaMalloc(tree_dev, ws * hs * sizeof(node)));
+        MEM_GPU_SIZE += ws * hs * sizeof(node);
 
         std::fill(n_levels, n_levels + 2 * (MAX_R + 1), 0);
         n_levels[0] = ws * hs;
@@ -606,21 +620,21 @@ int main(int argc, char **argv)
 
             sum_rays = ws * hs;
 
-            zero_render_kernel<<<zero_render_grid.first, zero_render_grid.second>>>
-                                (pc, pv, ws, hs, fov,
-                                 polygons_dev, normals_dev, colors_dev, krs_dev, krefs_dev, n_polygons,
-                                 light_points_dev, light_colors_dev, n_lights,
-                                 tex_dev, wtex, htex, ax_dev, ay_dev, tex_start,
-                                 tree_dev[0]);
+            zero_render_kernel <<<zero_render_grid.first, zero_render_grid.second>>>
+                (pc, pv, ws, hs, fov,
+                 polygons_dev, normals_dev, colors_dev, krs_dev, krefs_dev, n_polygons,
+                 light_points_dev, light_colors_dev, n_lights,
+                 tex_dev, wtex, htex, ax_dev, ay_dev, tex_start,
+                 tree_dev[0]);
             DCSC(cudaDeviceSynchronize());
             DCSC(cudaGetLastError());
 
             for (R = 1; R <= MAX_R; R++) // цикл по уровням
             {
                 ptr = thrust::device_pointer_cast(tree_dev[R - 1]);
-                mid = partition(thrust::device, 
-                                ptr, ptr + n_levels[R - 1], 
-                                partion_pred()); // уплотнение
+                mid = partition(thrust::device,
+                    ptr, ptr + n_levels[R - 1],
+                    partion_pred()); // уплотнение
                 n_rays = mid - ptr;              // число лучей для дальнейшей обработки
                 if (n_rays == 0)
                 {
@@ -647,17 +661,19 @@ int main(int argc, char **argv)
                         printf("Error: Not enough CPU memory to make operation\n");
                         goto FREE;
                     }
+                    MEM_CPU_SIZE += (n_levels[R] - n_levels_size[R]) * sizeof(node);
                     CSC(cudaMalloc(tree_dev + R, n_levels[R] * sizeof(node)));
+                    MEM_GPU_SIZE += (n_levels[R] - n_levels_size[R]) * sizeof(node);
 
                     n_levels_size[R] = n_levels[R];
                 }
                 auto render_grid = optimal_grid(n_rays, blocks, threads);
-                render_kernel<<<render_grid.first, render_grid.second>>>
-                               (n_rays,
-                                polygons_dev, normals_dev, colors_dev, krs_dev, krefs_dev, n_polygons,
-                                light_points_dev, light_colors_dev, n_lights,
-                                tex_dev, wtex, htex, ax_dev, ay_dev, tex_start,
-                                tree_dev[R - 1], tree_dev[R]);
+                render_kernel <<<render_grid.first, render_grid.second>>>
+                    (n_rays,
+                     polygons_dev, normals_dev, colors_dev, krs_dev, krefs_dev, n_polygons,
+                     light_points_dev, light_colors_dev, n_lights,
+                     tex_dev, wtex, htex, ax_dev, ay_dev, tex_start,
+                     tree_dev[R - 1], tree_dev[R]);
                 DCSC(cudaDeviceSynchronize());
                 DCSC(cudaGetLastError());
             }
@@ -681,7 +697,7 @@ int main(int argc, char **argv)
             if (MEM_GPU_SIZE_EXTRA > 0) // эффективный алгоритм
             {
                 cudaMemcpy(table, tree_dev, R * sizeof(node **), cudaMemcpyHostToDevice);
-                inspect_stack_size_kernel<<<SSAA_grid.first, SSAA_grid.second>>>
+                inspect_stack_size_kernel <<<SSAA_grid.first, SSAA_grid.second>>>
                     (ws, hs, R, table, stack_size + 1);
                 auto ptr = thrust::device_pointer_cast(stack_size + 1);
                 thrust::inclusive_scan(thrust::device, ptr, ptr + ws * hs, ptr);
@@ -691,16 +707,18 @@ int main(int argc, char **argv)
                 if (sum_size > STACK_SIZE)
                 {
                     cudaFree(stack);
-                    STACK_SIZE = (int)((float)sum_size * 1.2f);
-                    res = cudaMalloc(&stack, STACK_SIZE * sizeof(frame));
+                    sum_size = (int)((float)sum_size * 1.2f);
+                    res = cudaMalloc(&stack, sum_size * sizeof(frame));
                     if (res != cudaSuccess)
                     {
                         printf("Error: Not enough GPU memory to make operation\n");
                         goto FREE;
                     }
+                    MEM_GPU_SIZE += (sum_size - STACK_SIZE) * sizeof(frame);
+                    STACK_SIZE = sum_size;
                 }
 
-                calculate_color_kernel<<<SSAA_grid.first, SSAA_grid.second>>>
+                calculate_color_kernel <<<SSAA_grid.first, SSAA_grid.second>>>
                     (ws, hs, pixels_SSAA_dev, R, table, stack, stack_size);
                 DCSC(cudaDeviceSynchronize());
                 DCSC(cudaGetLastError());
@@ -721,8 +739,8 @@ int main(int argc, char **argv)
 
             if (k_SSAA > 1)
             {
-                SSAA_kernel<<<SSAA_grid.first, SSAA_grid.second>>>
-                            (pixels_dev, w, h, k_SSAA, k_SSAA, pixels_SSAA_dev);
+                SSAA_kernel <<<SSAA_grid.first, SSAA_grid.second>>>
+                    (pixels_dev, w, h, k_SSAA, k_SSAA, pixels_SSAA_dev);
                 DCSC(cudaDeviceSynchronize());
                 DCSC(cudaGetLastError());
                 cudaMemcpy(pixels, pixels_dev, w * h * sizeof(uchar4), cudaMemcpyDeviceToHost);
@@ -731,7 +749,7 @@ int main(int argc, char **argv)
             {
                 cudaMemcpy(pixels, pixels_SSAA_dev, w * h * sizeof(uchar4), cudaMemcpyDeviceToHost);
             }
-            
+
             sprintf(buff, path2images, i);
             fp = fopen(buff, "wb");
             fwrite(&w, sizeof(int), 1, fp);
@@ -743,9 +761,9 @@ int main(int argc, char **argv)
             time_span = std::chrono::duration_cast<milliseconds>(time_end - time_start);
 
             printf("%12d|%12.2f|%12d\n",
-                   i + 1,
-                   (float)time_span.count(),
-                   sum_rays);
+                i + 1,
+                (float)time_span.count(),
+                sum_rays);
             fflush(stdout);
         }
         for (i = 0; i < MAX_R + 1; i++)
@@ -776,13 +794,13 @@ int main(int argc, char **argv)
             pv = { rv * cosf(phiv), rv * sinf(phiv), zv };
 
             render(pc, pv, ws, hs, fov, MAX_R, polygons, normals, colors, krs, krefs, n_polygons,
-                   light_points, light_colors, n_lights,
-                   pixels_SSAA,
-                   tex, wtex, htex, ax, ay, tex_start,
-                   omp_threads);
+                light_points, light_colors, n_lights,
+                pixels_SSAA,
+                tex, wtex, htex, ax, ay, tex_start,
+                omp_threads);
 
             SSAA(pixels, w, h, k_SSAA, k_SSAA, pixels_SSAA, omp_threads);
-            
+
             sprintf(buff, path2images, i);
             fp = fopen(buff, "wb");
             fwrite(&w, sizeof(int), 1, fp);
@@ -794,15 +812,21 @@ int main(int argc, char **argv)
             time_span = std::chrono::duration_cast<milliseconds>(time_end - time_start);
 
             printf("%12d|%12.2f|%12s\n",
-                   i + 1,
-                   (float)time_span.count(),
-                   "----------");
+                i + 1,
+                (float)time_span.count(),
+                "----------");
             fflush(stdout);
         }
     }
 
+    printf("End CPU mem usage = %.2f Gb\n",
+        (float)MEM_CPU_SIZE / (float)(1024 * 1024 * 1024));
+    if (is_GPU)
+        printf("End GPU mem usage = %.2f Gb\n",
+            (float)MEM_GPU_SIZE / (float)(1024 * 1024 * 1024));
+
 FREE:
-    
+
     cudaFree(MEM_GPU);
 
 FREE2:
