@@ -216,7 +216,7 @@ int main(int argc, char **argv)
         *floor_polygons;
     triangle *polygons_dev;
 
-    node **tree = NULL, **tree_dev = NULL;
+    node **tree_dev = NULL;
 
     /*int blocks = CUDA_BLOCKS;
     pair<int, int> blocks2 = CUDA_BLOCKS2;*/
@@ -467,43 +467,31 @@ int main(int argc, char **argv)
     node **table;
     int *stack_size;
 
-    uint64 MEM_GPU_SIZE = 0, MEM_GPU_SIZE_EXTRA = 0;
+    uint64 MEM_GPU_SIZE = 0;
 
     if (is_GPU)
     {
-        MEM_GPU_SIZE +=
+        MEM_GPU_SIZE =
             (uint64)(w * h + ws * hs) * sizeof(uchar4) +     // экран + растянутый экран
             (uint64)(wtex * htex) * sizeof(uchar4) +         // текстура пола
             (uint64)n_polygons * sizeof(triangle) +          // полигоны
             (uint64)(2 * n_polygons) * sizeof(vec3) +        // нормали + цвета
             (uint64)(2 * n_lights) * sizeof(vec3) +          // глобальные источники света
             (uint64)(2 * n_polygons) * sizeof(float) +       // krs + krefs
-            (uint64)(2 * N_FLOOR_POLYGONS) * sizeof(vec3);   // ax, ay
-
-        MEM_GPU_SIZE_EXTRA +=
-            (uint64)(MAX_R + 1) * sizeof(node **) +           // table
-            (uint64)(ws * hs + 1) * sizeof(int);              // stack_size
-
+            (uint64)(2 * N_FLOOR_POLYGONS) * sizeof(vec3) +  // ax, ay
+            (uint64)(MAX_R + 1) * sizeof(node **) +          // table
+            (uint64)(ws * hs + 1) * sizeof(int);             // stack_size
+       
         /* Выделение памяти на GPU */
-        res = cudaMalloc(&MEM_GPU, (size_t)(MEM_GPU_SIZE + MEM_GPU_SIZE_EXTRA));
+        res = cudaMalloc(&MEM_GPU, (size_t)MEM_GPU_SIZE);
         if (res != cudaSuccess)
         {
-            printf("Warning: Not enough GPU memory for efficient algorithm\n");
-
-            res = cudaMalloc(&MEM_GPU, (size_t)MEM_GPU_SIZE);
-            if (res != cudaSuccess)
-            {
-                printf("ERROR: Not enough GPU memory to make operation\n");
-                goto FREE2;
-            }
-
-            MEM_GPU_SIZE_EXTRA = 0;
+            printf("ERROR: Not enough GPU memory to make operation\n");
+            goto FREE2;
         }
 
-        MEM_GPU_SIZE += MEM_GPU_SIZE_EXTRA;
-
         printf("Start GPU mem usage = %.2f Gb\n",
-            (float)MEM_GPU_SIZE / (float)(1024 * 1024 * 1024));
+               (float)MEM_GPU_SIZE / (float)(1024 * 1024 * 1024));
 
         pixels_dev = MEM_GPU;
         pixels_SSAA_dev = pixels_dev + w * h;
@@ -522,11 +510,8 @@ int main(int argc, char **argv)
         ax_dev = (vec3 *)(krefs_dev + n_polygons);
         ay_dev = ax_dev + N_FLOOR_POLYGONS;
 
-        if (MEM_GPU_SIZE_EXTRA > 0)
-        {
-            table = (node **)(ay_dev + N_FLOOR_POLYGONS);
-            stack_size = (int *)(table + (MAX_R + 1));
-        }
+        table = (node **)(ay_dev + N_FLOOR_POLYGONS);
+        stack_size = (int *)(table + (MAX_R + 1));
 
         CSC(cudaMemcpyAsync(tex_dev, tex, wtex * htex * sizeof(uchar4), cudaMemcpyHostToDevice));
         CSC(cudaMemcpyAsync(polygons_dev, polygons, n_polygons * sizeof(triangle), cudaMemcpyHostToDevice));
@@ -549,47 +534,37 @@ int main(int argc, char **argv)
     }
     printf("n_polygons = %d\n", n_polygons);
     printf("%12s|%12s|%12s\n",
-        "frame_number", "time2render", "num of rays");
+           "frame_number", "time2render", "num of rays");
 
     if (is_GPU)
     {
-        int STACK_SIZE = 0;
+        int STACK_SIZE = ws * hs;
 
-        if (MEM_GPU_SIZE_EXTRA > 0)
+        /* Выделение памяти под стэк */
+        res = cudaMalloc(&stack, STACK_SIZE * sizeof(frame));
+        if (res != cudaSuccess)
         {
-            STACK_SIZE += ws * hs;
-            /* Выделение памяти под стэк */
-            res = cudaMalloc(&stack, STACK_SIZE * sizeof(frame));
-            if (res != cudaSuccess)
-            {
-                printf("Error: Not enough GPU memory to make operation\n");
-                goto FREE;
-            }
+            printf("Error: Not enough GPU memory to make operation\n");
+            goto FREE;
         }
+        MEM_GPU_SIZE += STACK_SIZE * sizeof(frame);
 
-        MEM_GPU_SIZE += (uint64)STACK_SIZE;
-
-        int tmp_size = 2 * (MAX_R + 1) * sizeof(node *) +
-            2 * (MAX_R + 1) * sizeof(int);
+        int tmp_size = (MAX_R + 1) * sizeof(node *) +
+                        2 * (MAX_R + 1) * sizeof(int);
 
         /* Выделенение памяти под указатели на элементы в каждом уровне */
-        tree = (node **)malloc(tmp_size);
-        MEM_CPU_SIZE += (uint64)tmp_size;
-
-        tree_dev = tree + MAX_R + 1;
-        n_levels = (int *)(tree_dev + MAX_R + 1);
-        n_levels_size = n_levels + MAX_R + 1;
-
-        std::fill(tree, tree + MAX_R + 1, (node *)NULL);
-        std::fill(tree_dev, tree_dev + MAX_R + 1, (node *)NULL);
-
-        tree[0] = (node *)malloc(ws * hs * sizeof(node)); // выделение памяти под нулевой уровень рекурсии
-        if (!tree[0])
+        tree_dev = (node **)malloc(tmp_size);
+        if (!tree_dev)
         {
             printf("Error: Not enough CPU memory to make operation\n");
             goto FREE;
         }
-        MEM_CPU_SIZE += ws * hs * sizeof(node);
+        MEM_CPU_SIZE += (uint64)tmp_size;
+
+        n_levels = (int *)(tree_dev + MAX_R + 1);
+        n_levels_size = n_levels + MAX_R + 1;
+
+        std::fill(tree_dev, tree_dev + MAX_R + 1, (node *)NULL);
 
         CSC(cudaMalloc(tree_dev, ws * hs * sizeof(node)));
         MEM_GPU_SIZE += ws * hs * sizeof(node);
@@ -650,18 +625,7 @@ int main(int argc, char **argv)
                     {
                         CSC(cudaFree(tree_dev[R]));
                     }
-                    if (tree[R] != NULL)
-                    {
-                        free(tree[R]);
-                    }
-
-                    tree[R] = (node *)malloc(n_levels[R] * sizeof(node));
-                    if (!tree[R])
-                    {
-                        printf("Error: Not enough CPU memory to make operation\n");
-                        goto FREE;
-                    }
-                    MEM_CPU_SIZE += (n_levels[R] - n_levels_size[R]) * sizeof(node);
+                    
                     CSC(cudaMalloc(tree_dev + R, n_levels[R] * sizeof(node)));
                     MEM_GPU_SIZE += (n_levels[R] - n_levels_size[R]) * sizeof(node);
 
@@ -694,47 +658,33 @@ int main(int argc, char **argv)
 
             // раскрутка рекурсии
 
-            if (MEM_GPU_SIZE_EXTRA > 0) // эффективный алгоритм
+            cudaMemcpy(table, tree_dev, R * sizeof(node **), cudaMemcpyHostToDevice);
+            inspect_stack_size_kernel <<<SSAA_grid.first, SSAA_grid.second>>>
+                (ws, hs, R, table, stack_size + 1);
+            auto ptr = thrust::device_pointer_cast(stack_size + 1);
+            thrust::inclusive_scan(thrust::device, ptr, ptr + ws * hs, ptr);
+            cudaMemset(stack_size, 0, 1 * sizeof(int));
+            int sum_size;
+            cudaMemcpy(&sum_size, stack_size + ws * hs, 1 * sizeof(int), cudaMemcpyDeviceToHost);
+            if (sum_size > STACK_SIZE)
             {
-                cudaMemcpy(table, tree_dev, R * sizeof(node **), cudaMemcpyHostToDevice);
-                inspect_stack_size_kernel <<<SSAA_grid.first, SSAA_grid.second>>>
-                    (ws, hs, R, table, stack_size + 1);
-                auto ptr = thrust::device_pointer_cast(stack_size + 1);
-                thrust::inclusive_scan(thrust::device, ptr, ptr + ws * hs, ptr);
-                cudaMemset(stack_size, 0, 1 * sizeof(int));
-                int sum_size;
-                cudaMemcpy(&sum_size, stack_size + ws * hs, 1 * sizeof(int), cudaMemcpyDeviceToHost);
-                if (sum_size > STACK_SIZE)
+                cudaFree(stack);
+                sum_size = (int)((float)sum_size * 1.2f);
+                res = cudaMalloc(&stack, sum_size * sizeof(frame));
+                if (res != cudaSuccess)
                 {
-                    cudaFree(stack);
-                    sum_size = (int)((float)sum_size * 1.2f);
-                    res = cudaMalloc(&stack, sum_size * sizeof(frame));
-                    if (res != cudaSuccess)
-                    {
-                        printf("Error: Not enough GPU memory to make operation\n");
-                        goto FREE;
-                    }
-                    MEM_GPU_SIZE += (sum_size - STACK_SIZE) * sizeof(frame);
-                    STACK_SIZE = sum_size;
+                    printf("Error: Not enough GPU memory to make operation\n");
+                    goto FREE;
                 }
-
-                calculate_color_kernel <<<SSAA_grid.first, SSAA_grid.second>>>
-                    (ws, hs, pixels_SSAA_dev, R, table, stack, stack_size);
-                DCSC(cudaDeviceSynchronize());
-                DCSC(cudaGetLastError());
-            }
-            else // CPU-алгоритм
-            {
-                for (k = 0; k < R; k++) // копирование дерева на CPU
-                {
-                    CSC(cudaMemcpy(tree[k], tree_dev[k], n_levels[k] * sizeof(node), cudaMemcpyDeviceToHost));
-                }
-
-                calculate_color(ws, hs, R, tree, pixels_SSAA, omp_threads);
-
-                cudaMemcpy(pixels_SSAA_dev, pixels_SSAA, ws * hs * sizeof(uchar4), cudaMemcpyHostToDevice);
+                MEM_GPU_SIZE += (sum_size - STACK_SIZE) * sizeof(frame);
+                STACK_SIZE = sum_size;
             }
 
+            calculate_color_kernel <<<SSAA_grid.first, SSAA_grid.second>>>
+                (ws, hs, pixels_SSAA_dev, R, table, stack, stack_size);
+            DCSC(cudaDeviceSynchronize());
+            DCSC(cudaGetLastError());
+            
             std::fill(n_levels + 1, n_levels + 1 + MAX_R, 0); // очистка
 
             if (k_SSAA > 1)
@@ -761,18 +711,17 @@ int main(int argc, char **argv)
             time_span = std::chrono::duration_cast<milliseconds>(time_end - time_start);
 
             printf("%12d|%12.2f|%12d\n",
-                i + 1,
-                (float)time_span.count(),
-                sum_rays);
+                   i + 1,
+                   (float)time_span.count(),
+                   sum_rays);
             fflush(stdout);
         }
         for (i = 0; i < MAX_R + 1; i++)
         {
-            free(tree[i]);
             CSC(cudaFree(tree_dev[i]));
         }
         cudaFree(stack);
-        free(tree);
+        free(tree_dev);
     }
     else // CPU
     {
@@ -793,7 +742,8 @@ int main(int argc, char **argv)
             pc = { rc * cosf(phic), rc * sinf(phic), zc };
             pv = { rv * cosf(phiv), rv * sinf(phiv), zv };
 
-            render(pc, pv, ws, hs, fov, MAX_R, polygons, normals, colors, krs, krefs, n_polygons,
+            render(
+                pc, pv, ws, hs, fov, MAX_R, polygons, normals, colors, krs, krefs, n_polygons,
                 light_points, light_colors, n_lights,
                 pixels_SSAA,
                 tex, wtex, htex, ax, ay, tex_start,
@@ -820,10 +770,10 @@ int main(int argc, char **argv)
     }
 
     printf("End CPU mem usage = %.2f Gb\n",
-        (float)MEM_CPU_SIZE / (float)(1024 * 1024 * 1024));
+           (float)MEM_CPU_SIZE / (float)(1024 * 1024 * 1024));
     if (is_GPU)
         printf("End GPU mem usage = %.2f Gb\n",
-            (float)MEM_GPU_SIZE / (float)(1024 * 1024 * 1024));
+               (float)MEM_GPU_SIZE / (float)(1024 * 1024 * 1024));
 
 FREE:
 
